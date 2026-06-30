@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -123,7 +124,7 @@ export default function TextInterviewPage() {
     }
 
     try {
-      // @ts-ignore - SpeechRecognition is not fully typed in standard TS yet
+      // @ts-expect-error - SpeechRecognition is not fully typed in standard TS yet
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
         toast.error("Your browser doesn't support speech recognition.");

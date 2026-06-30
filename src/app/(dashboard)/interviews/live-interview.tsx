@@ -129,7 +129,7 @@ export default function LiveInterviewPage() {
     if (isAiSpeaking) return; // Don't listen while AI speaks
 
     try {
-      // @ts-ignore
+      // @ts-expect-error - SpeechRecognition is not fully typed
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) return;
 
