@@ -44,7 +44,8 @@ export async function middleware(request: NextRequest) {
                            isAdminRoute;
                            
   const isAuthRoute = request.nextUrl.pathname.startsWith('/login') || 
-                      request.nextUrl.pathname.startsWith('/signup');
+                      request.nextUrl.pathname.startsWith('/signup') ||
+                      request.nextUrl.pathname === '/';
 
   if (isProtectedRoute && !user) {
     const url = request.nextUrl.clone();
@@ -52,7 +53,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Redirect authenticated users away from auth routes
+  // Redirect authenticated users away from auth routes and landing page
   if (isAuthRoute && user) {
     const url = request.nextUrl.clone();
     url.pathname = '/dashboard'; // You might want to check onboarding status here instead

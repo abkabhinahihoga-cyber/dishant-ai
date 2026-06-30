@@ -70,19 +70,21 @@ export function InstallBanner() {
             <Download className="h-6 w-6" />
           </div>
           <div>
-            <h4 className="font-semibold text-sm">Install Dishant AI App</h4>
-            <p className="text-xs text-muted-foreground">Add to your home screen for faster access.</p>
+            <h3 className="font-semibold text-sm">ऐप इंस्टॉल करें (Install App)</h3>
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+              Dishant AI को अपने फ़ोन में इंस्टॉल करें। यह तेज़ और आसान है!
+            </p>
           </div>
         </div>
         
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="flex w-full sm:w-auto gap-2">
           {isIOS ? (
-            <div className="text-xs text-muted-foreground flex items-center gap-1.5 bg-accent/50 px-3 py-2 rounded-lg border border-border/50">
-              Tap <Share className="h-3.5 w-3.5" /> and select <b>Add to Home Screen</b>
+            <div className="text-xs text-muted-foreground flex items-center gap-1.5 bg-accent/50 px-3 py-2 rounded-lg border border-border/50 w-full sm:w-auto justify-center">
+              नीचे <Share className="h-3.5 w-3.5 mx-1" /> दबाएं और <b className="ml-1">Add to Home Screen</b> चुनें
             </div>
           ) : (
-            <Button onClick={handleInstallClick} className="w-full sm:w-auto rounded-xl">
-              Install App
+            <Button onClick={handleInstallClick} className="w-full sm:w-auto rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
+              इंस्टॉल करें (Install)
             </Button>
           )}
           <Button variant="ghost" size="icon" onClick={handleDismiss} className="flex-shrink-0 rounded-full h-9 w-9 text-muted-foreground hover:bg-accent">

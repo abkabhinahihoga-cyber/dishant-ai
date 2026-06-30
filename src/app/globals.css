@@ -218,17 +218,16 @@
   animation-delay: 4s;
 }
 
-@keyframes auto-scroll {
+@keyframes marquee {
   0% { transform: translateX(0); }
-  100% { transform: translateX(calc(-50% - 0.75rem)); }
+  100% { transform: translateX(-100%); }
 }
 
-.animate-auto-scroll {
-  animation: auto-scroll 20s linear infinite;
-  width: max-content;
+.animate-marquee {
+  animation: marquee 25s linear infinite;
 }
 
-.animate-auto-scroll:hover {
+.animate-marquee:hover {
   animation-play-state: paused;
 }
 
