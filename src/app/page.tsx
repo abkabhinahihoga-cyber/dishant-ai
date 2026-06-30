@@ -5,7 +5,7 @@ import { InstallBanner } from "@/components/install-banner";
 
 export default function LandingPage() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen overflow-x-hidden">
       {/* Navigation */}
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
@@ -41,12 +41,12 @@ export default function LandingPage() {
               <span>AI-Powered Career Guide for Every Student</span>
             </div>
             
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold tracking-tight mb-6 max-w-5xl mx-auto leading-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-heading font-bold tracking-tight mb-6 max-w-5xl mx-auto leading-tight">
               सपनों को हकीकत बनाओ.<br />
               <span className="text-gradient">Design Your Career.</span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto font-medium">
+            <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto font-medium">
               India&apos;s smartest AI mentor that helps you discover the perfect career, learn the right skills, and get hired.
             </p>
             
@@ -65,10 +65,10 @@ export default function LandingPage() {
             
             <div className="mt-16 pt-8 border-t border-border/30 max-w-3xl mx-auto">
               <p className="text-sm text-muted-foreground mb-6 uppercase tracking-widest font-semibold">Trusted by students across India</p>
-              <div className="flex flex-wrap justify-center gap-8 opacity-70 grayscale">
-                <div className="flex items-center gap-2"><Users className="h-6 w-6"/> <span className="font-bold text-lg">10,000+ Students</span></div>
-                <div className="flex items-center gap-2"><Target className="h-6 w-6"/> <span className="font-bold text-lg">50+ Career Paths</span></div>
-                <div className="flex items-center gap-2"><GraduationCap className="h-6 w-6"/> <span className="font-bold text-lg">Free Forever</span></div>
+              <div className="flex flex-wrap justify-center gap-4 sm:gap-8 opacity-70 grayscale">
+                <div className="flex items-center gap-2"><Users className="h-5 w-5 sm:h-6 sm:w-6"/> <span className="font-bold text-sm sm:text-lg">10,000+ Students</span></div>
+                <div className="flex items-center gap-2"><Target className="h-5 w-5 sm:h-6 sm:w-6"/> <span className="font-bold text-sm sm:text-lg">50+ Career Paths</span></div>
+                <div className="flex items-center gap-2"><GraduationCap className="h-5 w-5 sm:h-6 sm:w-6"/> <span className="font-bold text-sm sm:text-lg">Free Forever</span></div>
               </div>
             </div>
           </div>
@@ -78,7 +78,7 @@ export default function LandingPage() {
         <section id="how-it-works" className="py-24 relative">
           <div className="container px-4 md:px-6">
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-5xl font-heading font-bold mb-4">How Dishant AI Works</h2>
+              <h2 className="text-2xl sm:text-3xl md:text-5xl font-heading font-bold mb-4">How Dishant AI Works</h2>
               <p className="text-muted-foreground text-xl">3 Simple Steps to Your Dream Career</p>
             </div>
             
@@ -117,7 +117,7 @@ export default function LandingPage() {
         <section id="features" className="py-32 bg-muted/30 relative">
           <div className="container px-4 md:px-6">
             <div className="text-center mb-20">
-              <h2 className="text-4xl md:text-5xl font-heading font-bold mb-6">सब कुछ जो आपको चाहिए</h2>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold mb-6">सब कुछ जो आपको चाहिए</h2>
               <p className="text-muted-foreground text-xl max-w-2xl mx-auto">
                 A complete suite of AI-powered tools designed specifically for Indian students to navigate the modern job market.
               </p>
@@ -132,7 +132,7 @@ export default function LandingPage() {
                 { title: "ATS Resumes", desc: "Generate professional resumes that pass company screening software automatically.", icon: Sparkles, delay: "0.4s" },
                 { title: "Job Board", desc: "Find the latest entry-level jobs and internships perfect for freshers.", icon: Briefcase, delay: "0.5s" }
               ].map((feature, i) => (
-                <div key={i} className="glass-card p-8 rounded-3xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl border border-white/10 dark:border-white/5 animate-fade-up group" style={{ animationDelay: feature.delay }}>
+                <div key={i} className="glass-card p-6 sm:p-8 rounded-3xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl border border-white/10 dark:border-white/5 animate-fade-up group" style={{ animationDelay: feature.delay }}>
                   <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-primary/20 transition-all">
                     <feature.icon className="h-7 w-7 text-primary" />
                   </div>
@@ -148,7 +148,7 @@ export default function LandingPage() {
         <section id="testimonials" className="py-24">
           <div className="container px-4 md:px-6">
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-5xl font-heading font-bold mb-4">Students Love Dishant AI</h2>
+              <h2 className="text-2xl sm:text-3xl md:text-5xl font-heading font-bold mb-4">Students Love Dishant AI</h2>
             </div>
             
             <div className="grid md:grid-cols-3 gap-6">
@@ -157,7 +157,7 @@ export default function LandingPage() {
                 { name: "Priya Patel", college: "Science College, Tier 3", text: "The ATS Resume builder helped me get shortlisted for my first internship. The mock interview practice gave me so much confidence!" },
                 { name: "Amit Kumar", college: "B.Com Student", text: "Study planner helps me manage my college exams and skill learning together. It's like having a personal mentor 24/7. बिल्कुल मस्त ऐप है!" }
               ].map((testimonial, i) => (
-                <div key={i} className="bg-muted/30 p-8 rounded-3xl border border-border/50 relative">
+                <div key={i} className="bg-muted/30 p-6 sm:p-8 rounded-3xl border border-border/50 relative">
                   <div className="flex gap-1 mb-4">
                     {[1,2,3,4,5].map(star => <Star key={star} className="h-5 w-5 fill-primary text-primary" />)}
                   </div>
@@ -176,8 +176,8 @@ export default function LandingPage() {
         <section className="py-24 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-primary/10 -z-10"></div>
           <div className="container px-4 md:px-6 text-center">
-            <h2 className="text-4xl md:text-6xl font-heading font-bold mb-6">अपना Career आज ही बदलो</h2>
-            <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto">
+            <h2 className="text-3xl sm:text-4xl md:text-6xl font-heading font-bold mb-6">अपना Career आज ही बदलो</h2>
+            <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground mb-10 max-w-2xl mx-auto">
               Join thousands of students building their dream careers with Dishant AI. 100% Free to start.
             </p>
             <Link href="/signup">
