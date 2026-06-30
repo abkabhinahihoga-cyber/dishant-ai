@@ -20,6 +20,7 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "Dishant AI - From Confusion To Career",
   description: "An AI-powered Career Operating System that guides students from confusion to career success.",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({

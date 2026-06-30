@@ -3,16 +3,18 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, BrainCircuit, Compass, Target, BookOpen, Heart, Settings, Zap, FileEdit, Briefcase, Video, Code2, MonitorPlay, LogOut } from "lucide-react";
+import { LayoutDashboard, BrainCircuit, Compass, Target, BookOpen, Heart, Settings, Zap, FileEdit, Briefcase, Video, Code2, MonitorPlay, LogOut, Download } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Progress } from "@/components/ui/progress";
 import { useTranslation } from "@/lib/i18n/use-translation";
+import { usePwaInstall } from "@/hooks/use-pwa-install";
 
 export function Sidebar({ className }: { className?: string }) {
   const pathname = usePathname();
   const router = useRouter();
   const { t } = useTranslation();
+  const { canInstall, installApp } = usePwaInstall();
 
   const links = [
     { name: t("nav.dashboard"), href: "/dashboard", icon: LayoutDashboard },
@@ -110,6 +112,15 @@ export function Sidebar({ className }: { className?: string }) {
           <Settings className="h-[18px] w-[18px]" />
           {t("common.settings")}
         </Link>
+        {canInstall && (
+          <button
+            onClick={installApp}
+            className="w-full mt-1 flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 text-muted-foreground hover:text-primary hover:bg-primary/10 text-left"
+          >
+            <Download className="h-[18px] w-[18px]" />
+            Install App
+          </button>
+        )}
         <button
           onClick={handleLogout}
           className="w-full mt-1 flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 text-muted-foreground hover:text-destructive hover:bg-destructive/10 text-left"
