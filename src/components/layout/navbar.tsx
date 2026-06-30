@@ -17,6 +17,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "./theme-toggle";
 import { LanguageToggle } from "@/components/language-toggle";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sidebar } from "@/components/layout/sidebar";
 
 export function Navbar() {
   const router = useRouter();
@@ -41,9 +43,14 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/30 bg-background/80 backdrop-blur-xl">
       <div className="flex h-14 md:h-16 items-center px-4 md:px-8 gap-4">
-        <Button variant="ghost" size="icon" className="md:hidden h-9 w-9">
-          <Menu className="h-5 w-5" />
-        </Button>
+        <Sheet>
+          <SheetTrigger className="md:hidden h-9 w-9 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground disabled:pointer-events-none disabled:opacity-50">
+            <Menu className="h-5 w-5" />
+          </SheetTrigger>
+          <SheetContent side="left" className="p-0 w-72">
+            <Sidebar className="w-full border-none" />
+          </SheetContent>
+        </Sheet>
         
         <Link href="/dashboard" className="flex items-center gap-2.5 mr-4">
           <div className="bg-gradient-to-br from-primary to-primary/70 p-1.5 rounded-lg shadow-sm">
@@ -61,7 +68,7 @@ export function Navbar() {
           </Button>
 
           <DropdownMenu>
-            <DropdownMenuTrigger className="relative h-9 w-9 rounded-xl outline-none">
+            <DropdownMenuTrigger className="relative h-9 w-9 rounded-xl outline-none p-0 inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground disabled:pointer-events-none disabled:opacity-50">
               <Avatar className="h-9 w-9 rounded-xl border border-border/50">
                 <AvatarImage src="" alt="@user" />
                 <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/5 text-primary rounded-xl">
