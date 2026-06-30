@@ -54,24 +54,21 @@ export function InstallBanner() {
   const handleInstallClick = () => {
     if (canInstall) {
       installApp();
-    } else {
-      // Fallback for Android if beforeinstallprompt hasn't fired
-      alert("To install the app, tap the browser menu (⋮) and select 'Install app' or 'Add to Home screen'.");
     }
   };
 
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 p-4 z-[100] animate-in slide-in-from-bottom-10 fade-in duration-300">
-      <div className="max-w-3xl mx-auto glass-card border border-primary/20 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-2xl bg-background/95 backdrop-blur-xl">
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          <div className="bg-primary/10 p-2 rounded-xl text-primary flex-shrink-0">
+    <div className="fixed bottom-0 left-0 right-0 p-4 z-50 animate-in slide-in-from-bottom-full duration-500">
+      <div className="mx-auto max-w-md bg-gradient-to-r from-indigo-50 to-blue-50 border-2 border-indigo-200 rounded-2xl shadow-2xl p-4 flex flex-col gap-4">
+        <div className="flex items-start gap-3">
+          <div className="h-12 w-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-lg shadow-indigo-200">
             <Download className="h-6 w-6" />
           </div>
           <div>
-            <h3 className="font-semibold text-sm">ऐप इंस्टॉल करें (Install App)</h3>
-            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+            <h3 className="font-bold text-base text-indigo-950">ऐप इंस्टॉल करें (Install App)</h3>
+            <p className="text-xs text-indigo-800/80 mt-1 leading-relaxed font-medium">
               Dishant AI को अपने फ़ोन में इंस्टॉल करें। यह तेज़ और आसान है!
             </p>
           </div>
@@ -79,16 +76,20 @@ export function InstallBanner() {
         
         <div className="flex w-full sm:w-auto gap-2">
           {isIOS ? (
-            <div className="text-xs text-muted-foreground flex items-center gap-1.5 bg-accent/50 px-3 py-2 rounded-lg border border-border/50 w-full sm:w-auto justify-center">
-              नीचे <Share className="h-3.5 w-3.5 mx-1" /> दबाएं और <b className="ml-1">Add to Home Screen</b> चुनें
+            <div className="text-xs text-indigo-800 flex items-center gap-1.5 bg-white px-3 py-2.5 rounded-xl border border-indigo-100 w-full justify-center font-medium shadow-sm">
+              नीचे <Share className="h-4 w-4 mx-1 text-indigo-600" /> दबाएं और <b className="ml-1 text-indigo-950">Add to Home Screen</b> चुनें
+            </div>
+          ) : !canInstall ? (
+            <div className="text-xs text-indigo-800 flex items-center gap-1.5 bg-white px-3 py-2.5 rounded-xl border border-indigo-100 w-full justify-center font-medium shadow-sm">
+              ऊपर मेनू (⋮) दबाएं और <b className="mx-1 text-indigo-950">Install App</b> चुनें
             </div>
           ) : (
-            <Button onClick={handleInstallClick} className="w-full sm:w-auto rounded-xl bg-primary text-primary-foreground hover:bg-primary/90">
+            <Button onClick={handleInstallClick} className="w-full rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200 h-11 text-sm font-bold">
               इंस्टॉल करें (Install)
             </Button>
           )}
-          <Button variant="ghost" size="icon" onClick={handleDismiss} className="flex-shrink-0 rounded-full h-9 w-9 text-muted-foreground hover:bg-accent">
-            <X className="h-4 w-4" />
+          <Button variant="ghost" size="icon" onClick={handleDismiss} className="flex-shrink-0 rounded-xl h-11 w-11 text-indigo-400 hover:bg-white hover:text-indigo-600">
+            <X className="h-5 w-5" />
           </Button>
         </div>
       </div>

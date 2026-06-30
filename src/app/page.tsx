@@ -96,7 +96,7 @@ export default function LandingPage() {
         </section>
 
         {/* Features Section */}
-        <section id="features" className="py-16 md:py-24 relative z-10">
+        <section id="features" className="py-16 md:py-24 relative z-10 bg-indigo-50/50 border-y border-indigo-100">
           <div className="container px-4 md:px-6">
             <div className="text-center mb-12 md:mb-16">
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold mb-4 text-slate-900">सब कुछ जो आपको चाहिए</h2>
@@ -108,8 +108,8 @@ export default function LandingPage() {
             {/* Desktop Grid */}
             <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {features.map((feature, i) => (
-                <div key={i} className="p-8 rounded-3xl transition-all duration-500 hover:-translate-y-2 shadow-xl shadow-indigo-100/50 hover:shadow-2xl hover:shadow-indigo-200/50 border border-white bg-white/70 backdrop-blur-md group">
-                  <div className="h-14 w-14 rounded-2xl bg-indigo-100 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-indigo-200 transition-all border border-indigo-50">
+                <div key={i} className="p-8 rounded-3xl transition-all duration-500 hover:-translate-y-2 shadow-xl shadow-indigo-200/50 hover:shadow-2xl hover:shadow-indigo-300/50 border border-white bg-white/90 backdrop-blur-md group">
+                  <div className="h-14 w-14 rounded-2xl bg-indigo-100 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-indigo-200 transition-all border border-indigo-200">
                     <feature.icon className="h-7 w-7 text-indigo-600" />
                   </div>
                   <h3 className="text-2xl font-bold mb-3 text-slate-900">{feature.title}</h3>
@@ -119,14 +119,14 @@ export default function LandingPage() {
             </div>
 
             {/* Mobile Auto-Scroll Marquee (Foolproof Implementation) */}
-            <div className="md:hidden overflow-hidden w-[100vw] relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
+            <div className="md:hidden overflow-hidden w-[100vw] relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-indigo-100/50 py-4 border-y border-indigo-200/50">
               <div className="flex animate-marquee w-max hover:[animation-play-state:paused]">
                 {/* First Set */}
                 <div className="flex gap-4 px-2 shrink-0">
                   {features.map((feature, i) => (
-                    <div key={`a-${i}`} className="w-[300px] p-6 rounded-3xl border border-white bg-white/70 backdrop-blur-md shadow-xl shadow-indigo-100/40 shrink-0 flex flex-col justify-between">
+                    <div key={`a-${i}`} className="w-[300px] p-6 rounded-3xl border border-white bg-white/90 backdrop-blur-md shadow-xl shadow-indigo-200/50 shrink-0 flex flex-col justify-between">
                       <div>
-                        <div className="h-12 w-12 rounded-xl bg-indigo-100 flex items-center justify-center mb-4 border border-indigo-50">
+                        <div className="h-12 w-12 rounded-xl bg-indigo-100 flex items-center justify-center mb-4 border border-indigo-200">
                           <feature.icon className="h-6 w-6 text-indigo-600" />
                         </div>
                         <h3 className="text-xl font-bold mb-2 text-slate-900">{feature.title}</h3>
@@ -138,9 +138,9 @@ export default function LandingPage() {
                 {/* Second Set (Duplicate for seamless loop) */}
                 <div className="flex gap-4 px-2 shrink-0">
                   {features.map((feature, i) => (
-                    <div key={`b-${i}`} className="w-[300px] p-6 rounded-3xl border border-white bg-white/70 backdrop-blur-md shadow-xl shadow-indigo-100/40 shrink-0 flex flex-col justify-between">
+                    <div key={`b-${i}`} className="w-[300px] p-6 rounded-3xl border border-white bg-white/90 backdrop-blur-md shadow-xl shadow-indigo-200/50 shrink-0 flex flex-col justify-between">
                       <div>
-                        <div className="h-12 w-12 rounded-xl bg-indigo-100 flex items-center justify-center mb-4 border border-indigo-50">
+                        <div className="h-12 w-12 rounded-xl bg-indigo-100 flex items-center justify-center mb-4 border border-indigo-200">
                           <feature.icon className="h-6 w-6 text-indigo-600" />
                         </div>
                         <h3 className="text-xl font-bold mb-2 text-slate-900">{feature.title}</h3>
@@ -155,7 +155,7 @@ export default function LandingPage() {
         </section>
 
         {/* Testimonials */}
-        <section id="testimonials" className="py-16 md:py-24 border-y border-slate-200 relative z-10 bg-white/40 backdrop-blur-sm">
+        <section id="testimonials" className="py-16 md:py-24 border-y border-violet-100 relative z-10 bg-violet-50/70 backdrop-blur-sm">
           <div className="container px-4 md:px-6">
             <div className="text-center mb-12 md:mb-16">
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold mb-4 text-slate-900">Students Love Dishant AI</h2>
@@ -164,26 +164,26 @@ export default function LandingPage() {
             {/* Desktop Grid */}
             <div className="hidden md:grid md:grid-cols-4 gap-6">
               {testimonials.map((testimonial, i) => (
-                <div key={i} className="bg-white p-6 rounded-3xl border border-slate-100 relative shadow-xl shadow-slate-200/50 hover:-translate-y-1 transition-transform">
+                <div key={i} className="bg-white/90 p-6 rounded-3xl border border-violet-100 relative shadow-xl shadow-violet-200/50 hover:-translate-y-1 transition-transform">
                   <div className="flex gap-1 mb-4">
                     {[1,2,3,4,5].map(star => <Star key={star} className="h-4 w-4 fill-amber-400 text-amber-400" />)}
                   </div>
                   <p className="text-base mb-6 text-slate-700 leading-relaxed font-medium">&quot;{testimonial.text}&quot;</p>
                   <div className="mt-auto">
                     <p className="font-bold text-slate-900">{testimonial.name}</p>
-                    <p className="text-sm text-indigo-600 font-semibold">{testimonial.college}</p>
+                    <p className="text-sm text-violet-600 font-semibold">{testimonial.college}</p>
                   </div>
                 </div>
               ))}
             </div>
 
             {/* Mobile Auto-Scroll Marquee (Reverse direction) */}
-            <div className="md:hidden overflow-hidden w-[100vw] relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
+            <div className="md:hidden overflow-hidden w-[100vw] relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] py-4 bg-violet-100/40 border-y border-violet-200/50">
               <div className="flex animate-marquee w-max [animation-direction:reverse] hover:[animation-play-state:paused]">
                 {/* First Set */}
                 <div className="flex gap-4 px-2 shrink-0">
                   {testimonials.map((testimonial, i) => (
-                    <div key={`a-${i}`} className="w-[280px] bg-white p-6 rounded-3xl border border-slate-100 relative shadow-lg shadow-slate-200/50 shrink-0 flex flex-col justify-between">
+                    <div key={`a-${i}`} className="w-[280px] bg-white/90 p-6 rounded-3xl border border-violet-100 relative shadow-lg shadow-violet-200/50 shrink-0 flex flex-col justify-between">
                       <div>
                         <div className="flex gap-1 mb-3">
                           {[1,2,3,4,5].map(star => <Star key={star} className="h-4 w-4 fill-amber-400 text-amber-400" />)}
@@ -192,7 +192,7 @@ export default function LandingPage() {
                       </div>
                       <div className="mt-auto">
                         <p className="font-bold text-base text-slate-900">{testimonial.name}</p>
-                        <p className="text-xs text-indigo-600 font-semibold">{testimonial.college}</p>
+                        <p className="text-xs text-violet-600 font-semibold">{testimonial.college}</p>
                       </div>
                     </div>
                   ))}
@@ -200,7 +200,7 @@ export default function LandingPage() {
                 {/* Second Set */}
                 <div className="flex gap-4 px-2 shrink-0">
                   {testimonials.map((testimonial, i) => (
-                    <div key={`b-${i}`} className="w-[280px] bg-white p-6 rounded-3xl border border-slate-100 relative shadow-lg shadow-slate-200/50 shrink-0 flex flex-col justify-between">
+                    <div key={`b-${i}`} className="w-[280px] bg-white/90 p-6 rounded-3xl border border-violet-100 relative shadow-lg shadow-violet-200/50 shrink-0 flex flex-col justify-between">
                       <div>
                         <div className="flex gap-1 mb-3">
                           {[1,2,3,4,5].map(star => <Star key={star} className="h-4 w-4 fill-amber-400 text-amber-400" />)}
@@ -209,7 +209,7 @@ export default function LandingPage() {
                       </div>
                       <div className="mt-auto">
                         <p className="font-bold text-base text-slate-900">{testimonial.name}</p>
-                        <p className="text-xs text-indigo-600 font-semibold">{testimonial.college}</p>
+                        <p className="text-xs text-violet-600 font-semibold">{testimonial.college}</p>
                       </div>
                     </div>
                   ))}
