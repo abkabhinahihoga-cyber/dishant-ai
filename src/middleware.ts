@@ -36,10 +36,12 @@ export async function middleware(request: NextRequest) {
 
   // Basic route protection:
   // Redirect unauthenticated users trying to access protected routes
+  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
   const isProtectedRoute = request.nextUrl.pathname.startsWith('/dashboard') || 
                            request.nextUrl.pathname.startsWith('/career') ||
                            request.nextUrl.pathname.startsWith('/roadmap') ||
-                           request.nextUrl.pathname.startsWith('/onboarding');
+                           request.nextUrl.pathname.startsWith('/onboarding') ||
+                           isAdminRoute;
                            
   const isAuthRoute = request.nextUrl.pathname.startsWith('/login') || 
                       request.nextUrl.pathname.startsWith('/signup');
@@ -48,6 +50,21 @@ export async function middleware(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);
+  }
+
+  // Check admin role for admin routes
+  if (isAdminRoute && user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('auth_user_id', user.id)
+      .single();
+      
+    if (!profile || profile.role !== 'admin') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/dashboard';
+      return NextResponse.redirect(url);
+    }
   }
 
   // Redirect authenticated users away from auth routes
