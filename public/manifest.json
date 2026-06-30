@@ -2,9 +2,9 @@
   "name": "Dishant AI",
   "short_name": "Dishant AI",
   "description": "An AI-powered Career Operating System that guides students from confusion to career success.",
-  "start_url": "/dashboard",
+  "start_url": "/login",
   "display": "standalone",
-  "background_color": "#05010a",
+  "background_color": "#ffffff",
   "theme_color": "#6327e5",
   "icons": [
     {

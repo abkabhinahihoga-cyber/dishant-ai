@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, BookOpen, Compass, Target, Sparkles, BrainCircuit, Users, Star, GraduationCap, Briefcase } from "lucide-react";
@@ -19,7 +21,20 @@ const testimonials = [
   { name: "Sneha Gupta", college: "BCA, 2nd Year", text: "Free and so powerful! The roadmap feature tells me exactly what to study every week." }
 ];
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
 export default function LandingPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    // If opened as a PWA, redirect to login (if not authenticated)
+    // The middleware will handle redirecting authenticated users to dashboard
+    if (window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true) {
+      router.push('/login');
+    }
+  }, [router]);
+
   return (
     <div className="flex flex-col min-h-screen overflow-x-hidden bg-slate-50 text-slate-900 font-sans selection:bg-indigo-500/30">
       

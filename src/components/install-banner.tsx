@@ -65,39 +65,52 @@ export function InstallBanner() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 p-4 z-50 animate-in slide-in-from-bottom-full duration-500">
-      <div className="mx-auto max-w-md bg-gradient-to-r from-yellow-50 to-amber-100 border-2 border-yellow-300 rounded-2xl shadow-2xl p-4 flex flex-col gap-4">
-        <div className="flex items-start gap-3">
-          <div className="h-12 w-12 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-amber-200">
-            <Download className="h-6 w-6" />
+      <div className="mx-auto max-w-md relative overflow-hidden bg-gradient-to-br from-yellow-300 via-amber-400 to-orange-400 border-2 border-yellow-200 rounded-3xl shadow-[0_20px_50px_rgba(251,191,36,0.5)] p-5 flex flex-col gap-5">
+        
+        {/* Decorative Pattern Overlay */}
+        <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '16px 16px' }}></div>
+        <div className="absolute top-[-50px] right-[-50px] w-32 h-32 bg-white/20 rounded-full blur-2xl pointer-events-none"></div>
+        <div className="absolute bottom-[-50px] left-[-50px] w-32 h-32 bg-orange-600/20 rounded-full blur-2xl pointer-events-none"></div>
+
+        {/* Absolute Close Button at Top Right */}
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={handleDismiss} 
+          className="absolute top-2 right-2 z-10 h-10 w-10 rounded-full bg-black/5 hover:bg-black/10 text-amber-950/70 hover:text-amber-950 transition-colors"
+        >
+          <X className="h-6 w-6" />
+        </Button>
+
+        <div className="flex items-start gap-4 relative z-10 pr-8">
+          <div className="h-14 w-14 rounded-2xl bg-white text-orange-500 flex items-center justify-center shrink-0 shadow-xl shadow-orange-500/20">
+            <Download className="h-7 w-7" />
           </div>
-          <div>
-            <h3 className="font-bold text-base text-amber-950">ऐप इंस्टॉल करें (Install App)</h3>
-            <p className="text-xs text-amber-900 mt-1 leading-relaxed font-medium">
+          <div className="pt-1">
+            <h3 className="font-bold text-lg text-amber-950 leading-tight">ऐप इंस्टॉल करें</h3>
+            <p className="text-sm text-amber-950/80 mt-1 leading-snug font-medium">
               Dishant AI को अपने फ़ोन में इंस्टॉल करें। यह तेज़ और आसान है!
             </p>
           </div>
         </div>
         
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 relative z-10">
           {showFallback && !isIOS && !canInstall && (
-            <div className="text-xs text-amber-800 flex items-center gap-1.5 bg-white/70 px-3 py-2.5 rounded-xl border border-yellow-200 w-full justify-center font-medium shadow-sm animate-in fade-in zoom-in duration-300">
-              ऊपर मेनू (⋮) दबाएं और <b className="mx-1 text-amber-950">Install App</b> चुनें
+            <div className="text-sm text-amber-950 flex items-center gap-2 bg-white/90 backdrop-blur-sm px-4 py-3 rounded-2xl border border-white/50 w-full justify-center font-medium shadow-sm animate-in fade-in zoom-in duration-300">
+              ऊपर मेनू (⋮) दबाएं और <b className="text-orange-600">Install App</b> चुनें
             </div>
           )}
           
           <div className="flex w-full gap-2">
             {isIOS ? (
-              <div className="text-xs text-amber-800 flex items-center gap-1.5 bg-white/70 px-3 py-2.5 rounded-xl border border-yellow-200 w-full justify-center font-medium shadow-sm">
-                नीचे <Share className="h-4 w-4 mx-1 text-amber-600" /> दबाएं और <b className="ml-1 text-amber-950">Add to Home Screen</b> चुनें
+              <div className="text-sm text-amber-950 flex items-center gap-2 bg-white/90 backdrop-blur-sm px-4 py-3 rounded-2xl border border-white/50 w-full justify-center font-medium shadow-sm">
+                नीचे <Share className="h-5 w-5 mx-1 text-orange-500" /> दबाएं और <b className="text-orange-600">Add to Home Screen</b> चुनें
               </div>
             ) : (
-              <Button onClick={handleInstallClick} className="w-full rounded-xl bg-amber-500 text-white hover:bg-amber-600 shadow-lg shadow-amber-200 h-11 text-sm font-bold">
+              <Button onClick={handleInstallClick} className="w-full rounded-2xl bg-amber-950 text-white hover:bg-black shadow-xl shadow-amber-950/20 h-14 text-base font-bold transition-transform active:scale-95">
                 इंस्टॉल करें (Install)
               </Button>
             )}
-            <Button variant="ghost" size="icon" onClick={handleDismiss} className="flex-shrink-0 rounded-xl h-11 w-11 text-amber-600 hover:bg-white/50 hover:text-amber-800">
-              <X className="h-5 w-5" />
-            </Button>
           </div>
         </div>
       </div>
