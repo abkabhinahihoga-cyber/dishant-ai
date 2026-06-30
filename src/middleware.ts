@@ -52,21 +52,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Check admin role for admin routes
-  if (isAdminRoute && user) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('auth_user_id', user.id)
-      .single();
-      
-    if (!profile || profile.role !== 'admin') {
-      const url = request.nextUrl.clone();
-      url.pathname = '/dashboard';
-      return NextResponse.redirect(url);
-    }
-  }
-
   // Redirect authenticated users away from auth routes
   if (isAuthRoute && user) {
     const url = request.nextUrl.clone();
