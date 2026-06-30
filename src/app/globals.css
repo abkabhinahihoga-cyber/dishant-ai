@@ -218,6 +218,15 @@
   animation-delay: 4s;
 }
 
+/* Hide scrollbar for mobile carousels but allow scrolling */
+.custom-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.custom-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
 /* Print styles for Resume Builder PDF export */
 @media print {
   body * {
