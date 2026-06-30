@@ -37,10 +37,16 @@ export function usePwaInstall() {
       setCanInstall(true);
     };
 
+    const handleAppInstalled = () => {
+      setIsInstalled(true);
+    };
+
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleAppInstalled);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
 
