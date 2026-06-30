@@ -218,6 +218,20 @@
   animation-delay: 4s;
 }
 
+@keyframes auto-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(calc(-50% - 0.75rem)); }
+}
+
+.animate-auto-scroll {
+  animation: auto-scroll 20s linear infinite;
+  width: max-content;
+}
+
+.animate-auto-scroll:hover {
+  animation-play-state: paused;
+}
+
 /* Hide scrollbar for mobile carousels but allow scrolling */
 .custom-scrollbar {
   -ms-overflow-style: none;  /* IE and Edge */

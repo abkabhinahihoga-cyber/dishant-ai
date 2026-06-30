@@ -39,8 +39,9 @@ export function InstallBanner() {
       return;
     }
 
-    // Show if Android (canInstall) or iOS
-    if (canInstall || isIOS) {
+    // Show if iOS, or if Android (based on userAgent), or if canInstall triggers
+    const isAndroid = /android/i.test(window.navigator.userAgent);
+    if (canInstall || isIOS || isAndroid) {
       setIsVisible(true);
     }
   }, [canInstall, isIOS, isAuthenticated, isInstalled]);
@@ -48,6 +49,15 @@ export function InstallBanner() {
   const handleDismiss = () => {
     setIsVisible(false);
     sessionStorage.setItem("pwa-banner-dismissed", "true");
+  };
+
+  const handleInstallClick = () => {
+    if (canInstall) {
+      installApp();
+    } else {
+      // Fallback for Android if beforeinstallprompt hasn't fired
+      alert("To install the app, tap the browser menu (⋮) and select 'Install app' or 'Add to Home screen'.");
+    }
   };
 
   if (!isVisible) return null;
@@ -71,7 +81,7 @@ export function InstallBanner() {
               Tap <Share className="h-3.5 w-3.5" /> and select <b>Add to Home Screen</b>
             </div>
           ) : (
-            <Button onClick={installApp} className="w-full sm:w-auto rounded-xl">
+            <Button onClick={handleInstallClick} className="w-full sm:w-auto rounded-xl">
               Install App
             </Button>
           )}
