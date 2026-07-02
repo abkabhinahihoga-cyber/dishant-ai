@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
-import { Save, Link as LinkIcon, Upload, FileText, Loader2, User, BrainCircuit } from "lucide-react";
+import { Save, Link as LinkIcon, Upload, FileText, Loader2, User, BrainCircuit, GraduationCap } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
@@ -17,13 +18,14 @@ export default function SettingsPage() {
   const [uploadingResume, setUploadingResume] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [resumeFeedback, setResumeFeedback] = useState<any>(null);
+  const [educationCategory, setEducationCategory] = useState("");
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const supabase = createClient();
 
   useEffect(() => {
     loadProfile();
-  }, []);
+  }, []); // eslint-disable-next-line react-hooks/exhaustive-deps
 
   const loadProfile = async () => {
     try {
@@ -33,7 +35,7 @@ export default function SettingsPage() {
 
       const { data, error } = await supabase
         .from("profiles")
-        .select("github_url, linkedin_url, resume_url")
+        .select("github_url, linkedin_url, resume_url, education_category")
         .eq("auth_user_id", user.id)
         .single();
 
@@ -42,6 +44,7 @@ export default function SettingsPage() {
       if (data) {
         setGithubUrl(data.github_url || "");
         setLinkedinUrl(data.linkedin_url || "");
+        setEducationCategory(data.education_category || "");
         // If it's an old public URL, extract the filename. Otherwise use as is.
         let path = data.resume_url || "";
         if (path.includes('/public/resumes/')) {
@@ -68,11 +71,15 @@ export default function SettingsPage() {
         .update({
           github_url: githubUrl,
           linkedin_url: linkedinUrl,
+          education_category: educationCategory,
         })
         .eq("auth_user_id", user.id);
 
       if (error) throw error;
       toast.success("Profile saved successfully");
+      
+      // Force reload sidebar by dispatching event or reloading page
+      window.location.reload();
     } catch (error) {
       console.error("Error saving profile:", error);
       toast.error("Failed to save profile");
@@ -276,6 +283,24 @@ export default function SettingsPage() {
             
             <div className="space-y-4">
               <div className="space-y-2">
+                <label className="text-sm font-medium">Education Stage</label>
+                <Select value={educationCategory} onValueChange={(v) => setEducationCategory(v || "")}>
+                  <SelectTrigger className="bg-background/50">
+                    <SelectValue placeholder="Select your current stage" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="school">School (9-12)</SelectItem>
+                    <SelectItem value="entrance_exams">Entrance Exams</SelectItem>
+                    <SelectItem value="graduation">Graduation / College</SelectItem>
+                    <SelectItem value="diploma">Diploma / ITI</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Changing this will update the features available in your sidebar.
+                </p>
+              </div>
+
+              <div className="space-y-2 pt-2">
                 <label className="text-sm font-medium">LinkedIn URL</label>
                 <div className="relative">
                   <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

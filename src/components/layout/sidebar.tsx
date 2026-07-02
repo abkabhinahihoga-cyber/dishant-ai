@@ -31,25 +31,47 @@ export function Sidebar({ className }: { className?: string }) {
 
   const [level, setLevel] = useState(1);
   const [xp, setXp] = useState(0);
+  const [category, setCategory] = useState<string | null>(null);
   
   useEffect(() => {
-    const fetchXP = async () => {
+    const fetchData = async () => {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('xp, level')
+          .select('xp, level, education_category')
           .eq('auth_user_id', user.id)
           .single();
         if (profile) {
           setXp(profile.xp || 0);
           setLevel(profile.level || 1);
+          setCategory(profile.education_category);
         }
       }
     };
-    fetchXP();
+    fetchData();
   }, [pathname]);
+
+  // Filter links dynamically based on user category
+  const filteredLinks = links.filter((link) => {
+    // These are core features everyone sees
+    const coreLinks = ["/dashboard", "/career-mentor", "/roadmap", "/wellness", "/study-planner"];
+    if (coreLinks.includes(link.href)) return true;
+
+    // School & Entrance Exam Prep
+    if (category === 'school' || category === 'entrance_exams') {
+      if (link.href === '/career-test') return true;
+      return false; // Hide resume, portfolio, jobs, interviews
+    }
+
+    // Graduation & Diploma (or not set)
+    if (category === 'graduation' || category === 'diploma' || !category) {
+      return true; // Show everything
+    }
+
+    return true;
+  });
 
   const xpForNextLevel = level * 100;
   const progressPercentage = (xp % 100) / 100 * 100;
@@ -68,7 +90,7 @@ export function Sidebar({ className }: { className?: string }) {
             Platform
           </h2>
           <div className="space-y-1">
-            {links.map((link) => (
+            {filteredLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
