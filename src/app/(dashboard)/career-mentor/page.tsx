@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { BrainCircuit, Send, User, Sparkles, Loader2, MessageSquare, Plus, Trash2, Menu, X } from "lucide-react";
+import { BrainCircuit, Send, User, Sparkles, Loader2, MessageSquare, Plus, Trash2, Menu, X, ArrowLeft, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { useLanguage } from "@/components/language-provider";
 import { useTranslation } from "@/lib/i18n/use-translation";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface Message {
   id: string;
@@ -29,7 +31,6 @@ const WELCOME_MESSAGE: Message = {
   content: "Hello! I'm your AI Career Mentor. I'm here to help you navigate your career choices, prepare for interviews, or answer any questions about skills and jobs. What's on your mind today?"
 };
 
-// Language-specific suggestion chips
 const SUGGESTIONS: Record<string, string[]> = {
   English: [
     "What career suits me?",
@@ -55,6 +56,7 @@ const SUGGESTIONS: Record<string, string[]> = {
 };
 
 export default function CareerMentorPage() {
+  const router = useRouter();
   const { language } = useLanguage();
   const { t } = useTranslation();
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -62,8 +64,9 @@ export default function CareerMentorPage() {
   const [messages, setMessages] = useState<Message[]>([WELCOME_MESSAGE]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile sidebar state
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [hasScrolled, setHasScrolled] = useState(false);
 
   useEffect(() => { fetchHistory(); }, []);
 
@@ -87,7 +90,7 @@ export default function CareerMentorPage() {
         id: m.id, role: m.role, content: m.content
       }));
       setActiveConversationId(id);
-      setIsMobileSidebarOpen(false);
+      setIsSidebarOpen(false);
       setMessages(loaded.length > 0 ? loaded : [WELCOME_MESSAGE]);
     } catch { toast.error("Could not load conversation."); }
     finally { setIsLoading(false); }
@@ -106,7 +109,7 @@ export default function CareerMentorPage() {
   const startNewChat = () => {
     setActiveConversationId(null);
     setMessages([WELCOME_MESSAGE]);
-    setIsMobileSidebarOpen(false);
+    setIsSidebarOpen(false);
   };
 
   useEffect(() => {
@@ -169,163 +172,206 @@ export default function CareerMentorPage() {
     sendMessage(input);
   };
 
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    setHasScrolled(e.currentTarget.scrollTop > 10);
+  };
+
   const suggestions = SUGGESTIONS[language] || SUGGESTIONS["English"];
-  const showSuggestions = messages.length === 1; // only show on fresh chat
+  const showSuggestions = messages.length === 1;
 
   return (
-    // fixed: starts at top-16 (below navbar h-16), full width/height
-    <div className="fixed left-0 right-0 bottom-0 top-16 flex bg-background z-10">
-
-      {/* Mobile backdrop */}
-      {isMobileSidebarOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden" onClick={() => setIsMobileSidebarOpen(false)} />
-      )}
-
-      {/* ── History Sidebar ────────────────────────────────────── */}
+    // FULL SCREEN OVERLAY: Covers Navbar (z-40) and BottomNav (z-50) completely
+    <div className="fixed inset-0 z-[100] flex bg-background font-sans overflow-hidden">
+      
+      {/* ── Sidebar (History) ────────────────────────────────────── */}
       <aside className={`
-        flex flex-col w-72 shrink-0 border-r border-border/40 bg-card/80 backdrop-blur-xl
-        fixed md:static inset-y-0 left-0 z-50 transition-transform duration-300
-        top-16 md:top-auto
-        ${isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+        flex flex-col w-72 shrink-0 border-r border-border/40 bg-muted/20
+        fixed md:relative inset-y-0 left-0 z-[110] transition-transform duration-300 ease-in-out
+        ${isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
       `}>
-        <div className="flex items-center gap-2 p-4 border-b border-border/40">
-          <BrainCircuit className="h-4 w-4 text-primary shrink-0" />
-          <span className="font-heading font-semibold text-sm truncate">{t("cm.title")}</span>
-          <Button variant="ghost" size="icon" className="ml-auto md:hidden h-7 w-7" onClick={() => setIsMobileSidebarOpen(false)}>
-            <X className="h-4 w-4" />
+        <div className="flex items-center gap-3 p-4 h-16 border-b border-border/40 shrink-0">
+          <Link href="/dashboard" className="h-8 w-8 flex items-center justify-center rounded-md hover:bg-muted/60 transition-colors">
+            <ArrowLeft className="h-5 w-5 text-muted-foreground" />
+          </Link>
+          <span className="font-heading font-semibold text-base truncate flex-1">Dishant AI</span>
+          <Button variant="ghost" size="icon" className="md:hidden h-8 w-8" onClick={() => setIsSidebarOpen(false)}>
+            <X className="h-5 w-5" />
           </Button>
         </div>
-        <div className="p-3 border-b border-border/40">
-          <Button onClick={startNewChat} className="w-full gap-2 justify-start" variant="outline" size="sm">
-            <Plus className="h-4 w-4" /> {t("cm.new_chat")}
+        
+        <div className="p-3 shrink-0">
+          <Button onClick={startNewChat} className="w-full gap-2 justify-start h-10 bg-background shadow-sm hover:bg-muted border border-border/50 text-foreground" variant="outline">
+            <Plus className="h-4 w-4" /> New Chat
           </Button>
         </div>
-        <ScrollArea className="flex-1">
-          <div className="p-2 space-y-0.5">
+        
+        <ScrollArea className="flex-1 px-3 pb-4">
+          <div className="space-y-1">
+            <div className="text-xs font-semibold text-muted-foreground mb-3 mt-2 px-2">History</div>
             {conversations.map((conv) => (
               <div key={conv.id} onClick={() => loadConversation(conv.id)}
-                className={`flex items-center justify-between group p-3 rounded-xl cursor-pointer transition-all ${
-                  activeConversationId === conv.id ? "bg-primary/10 text-primary" : "hover:bg-muted/60 text-muted-foreground hover:text-foreground"
+                className={`flex items-center justify-between group p-2.5 rounded-lg cursor-pointer transition-colors ${
+                  activeConversationId === conv.id ? "bg-primary/10 text-primary" : "hover:bg-muted/80 text-foreground/80 hover:text-foreground"
                 }`}
               >
-                <div className="flex items-center gap-2 overflow-hidden flex-1 min-w-0">
-                  <MessageSquare className="h-3.5 w-3.5 shrink-0 opacity-60" />
+                <div className="flex items-center gap-3 overflow-hidden flex-1 min-w-0">
                   <div className="truncate min-w-0">
-                    <p className="text-xs font-medium truncate">{conv.title}</p>
-                    <p className="text-[10px] opacity-50">{formatDistanceToNow(new Date(conv.updated_at), { addSuffix: true })}</p>
+                    <p className="text-sm font-medium truncate">{conv.title}</p>
+                    <p className="text-[11px] opacity-60 mt-0.5">{formatDistanceToNow(new Date(conv.updated_at), { addSuffix: true })}</p>
                   </div>
                 </div>
                 <Button variant="ghost" size="icon" onClick={(e) => deleteConversation(e, conv.id)}
-                  className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive shrink-0">
-                  <Trash2 className="h-3 w-3" />
+                  className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive hover:bg-destructive/10 shrink-0">
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             ))}
             {conversations.length === 0 && (
-              <div className="text-center p-6 text-xs text-muted-foreground">
-                <MessageSquare className="h-7 w-7 mx-auto mb-2 opacity-25" />
-                {t("cm.no_history")}
+              <div className="text-center p-6 text-sm text-muted-foreground mt-4">
+                No chat history yet.
               </div>
             )}
           </div>
         </ScrollArea>
       </aside>
 
-      {/* ── Main Chat ──────────────────────────────────────────── */}
-      <div className="flex-1 flex flex-col min-w-0 h-full">
-        {/* Top bar */}
-        <div className="flex items-center gap-3 px-4 h-12 border-b border-border/40 bg-background/80 backdrop-blur-xl shrink-0">
-          <Button variant="ghost" size="icon" className="md:hidden h-8 w-8 shrink-0" onClick={() => setIsMobileSidebarOpen(true)}>
-            <Menu className="h-4 w-4" />
-          </Button>
-          <div className="flex items-center gap-2">
-            <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
-              <BrainCircuit className="h-3.5 w-3.5 text-primary" />
+      {/* Mobile backdrop for sidebar */}
+      {isSidebarOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[105] md:hidden" onClick={() => setIsSidebarOpen(false)} />
+      )}
+
+      {/* ── Main Chat Window ──────────────────────────────────────── */}
+      <div className="flex-1 flex flex-col min-w-0 h-full relative bg-background">
+        
+        {/* Top Header */}
+        <header className={`
+          absolute top-0 inset-x-0 h-16 px-4 flex items-center justify-between z-10 transition-all duration-300
+          ${hasScrolled ? "bg-background/80 backdrop-blur-md border-b border-border/40" : "bg-transparent"}
+        `}>
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" className="md:hidden h-10 w-10 text-muted-foreground hover:bg-muted/60" onClick={() => setIsSidebarOpen(true)}>
+              <Menu className="h-5 w-5" />
+            </Button>
+            {/* Show model info */}
+            <div className="flex items-center gap-2 group cursor-pointer hover:bg-muted/50 px-3 py-1.5 rounded-lg transition-colors">
+              <span className="font-heading font-semibold text-lg text-foreground tracking-tight">Dishant <span className="text-primary">4.0</span></span>
+              <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
             </div>
-            <span className="font-heading font-semibold text-sm">{t("cm.title")}</span>
           </div>
-          <div className="ml-auto">
-            <Button onClick={startNewChat} variant="ghost" size="sm" className="gap-1.5 h-7 text-xs text-muted-foreground hidden sm:flex">
-              <Plus className="h-3.5 w-3.5" /> New Chat
-            </Button>
-          </div>
-        </div>
+          
+          <Button variant="ghost" size="icon" className="h-10 w-10 hidden md:flex" onClick={startNewChat}>
+            <Plus className="h-5 w-5 text-muted-foreground" />
+          </Button>
+        </header>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="max-w-3xl mx-auto px-4 py-6 space-y-5">
-            {messages.map((message) => (
-              <div key={message.id} className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-                {message.role === "assistant" && (
-                  <Avatar className="h-8 w-8 border border-primary/20 shrink-0 mt-0.5">
-                    <AvatarFallback className="bg-primary/10 text-primary">
-                      <Sparkles className="h-4 w-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-                <div className={`rounded-2xl px-4 py-2.5 max-w-[85%] text-sm whitespace-pre-wrap leading-relaxed shadow-sm ${
-                  message.role === "user"
-                    ? "bg-primary text-primary-foreground rounded-tr-none"
-                    : "bg-muted/60 border border-border/50 rounded-tl-none"
-                }`}>
-                  {message.content}
+        {/* Scrollable Message Area */}
+        <div className="flex-1 overflow-y-auto" onScroll={handleScroll}>
+          <div className="max-w-3xl mx-auto px-4 md:px-6 pt-24 pb-32">
+            
+            {/* Empty State Welcome */}
+            {messages.length === 1 && (
+              <div className="flex flex-col items-center justify-center py-12 md:py-20 text-center animate-fade-in">
+                <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mb-6 shadow-xl shadow-primary/5">
+                  <BrainCircuit className="h-10 w-10 text-primary" />
                 </div>
-                {message.role === "user" && (
-                  <Avatar className="h-8 w-8 border border-border shrink-0 mt-0.5">
-                    <AvatarFallback className="bg-muted text-muted-foreground">
-                      <User className="h-4 w-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-              </div>
-            ))}
-
-            {/* Suggestion chips — shown only on fresh chat */}
-            {showSuggestions && !isLoading && (
-              <div className="flex flex-wrap gap-2 mt-2 pl-11">
-                {suggestions.map((s, i) => (
-                  <button
-                    key={i}
-                    onClick={() => sendMessage(s)}
-                    className="text-xs px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 hover:bg-primary/15 text-primary transition-all hover:scale-[1.03] active:scale-95"
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {isLoading && (
-              <div className="flex gap-3 justify-start">
-                <Avatar className="h-8 w-8 border border-primary/20 shrink-0 mt-0.5">
-                  <AvatarFallback className="bg-primary/10 text-primary"><Sparkles className="h-4 w-4" /></AvatarFallback>
-                </Avatar>
-                <div className="rounded-2xl px-4 py-3 bg-muted/60 border border-border/50 rounded-tl-none flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                  <span className="text-sm text-muted-foreground">{t("cm.thinking")}</span>
+                <h2 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-4 tracking-tight">
+                  How can I help you <br className="md:hidden"/> grow today?
+                </h2>
+                <p className="text-lg text-muted-foreground max-w-lg mb-10">
+                  {messages[0].content}
+                </p>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl">
+                  {suggestions.slice(0, 4).map((s, i) => (
+                    <button
+                      key={i}
+                      onClick={() => sendMessage(s)}
+                      className="text-left p-4 rounded-xl border border-border/50 bg-muted/20 hover:bg-muted/60 transition-colors text-base text-foreground/80 hover:text-foreground"
+                    >
+                      {s}
+                    </button>
+                  ))}
                 </div>
               </div>
             )}
-            <div ref={messagesEndRef} />
+
+            {/* Message Thread */}
+            {messages.length > 1 && (
+              <div className="space-y-8">
+                {messages.map((message) => {
+                  if (message.id === "welcome") return null; // Skip welcome message in thread view
+                  
+                  return (
+                    <div key={message.id} className="flex gap-4 group md:px-4">
+                      {message.role === "assistant" ? (
+                        <div className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-1 shadow-sm">
+                          <Sparkles className="h-4 w-4 text-primary" />
+                        </div>
+                      ) : (
+                        <div className="h-8 w-8 rounded-full bg-muted border border-border flex items-center justify-center shrink-0 mt-1">
+                          <User className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                      )}
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-sm mb-1.5 text-foreground/80">
+                          {message.role === "user" ? "You" : "Dishant AI"}
+                        </div>
+                        <div className="prose prose-p:leading-relaxed prose-p:text-[1.05rem] dark:prose-invert max-w-none text-foreground whitespace-pre-wrap font-sans">
+                          {message.content}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {isLoading && (
+                  <div className="flex gap-4 md:px-4">
+                    <div className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-1">
+                      <Sparkles className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-semibold text-sm mb-1.5 text-foreground/80">Dishant AI</div>
+                      <div className="flex items-center gap-2 h-7 text-[1.05rem]">
+                        <div className="h-2 w-2 bg-primary/60 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                        <div className="h-2 w-2 bg-primary/60 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                        <div className="h-2 w-2 bg-primary/60 rounded-full animate-bounce"></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} className="h-4" />
+              </div>
+            )}
           </div>
         </div>
 
-        {/* ── Input bar — padded above bottom nav on mobile ── */}
-        <div className="shrink-0 border-t border-border/40 bg-background/90 backdrop-blur-xl px-4 pt-3 pb-20 md:pb-4">
-          <form onSubmit={handleSubmit} className="max-w-3xl mx-auto relative flex items-center">
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={t("cm.placeholder")}
-              className="pr-12 rounded-full border-border/60 bg-muted/30 focus-visible:ring-primary text-sm"
-              disabled={isLoading}
-            />
-            <Button type="submit" size="icon" disabled={!input.trim() || isLoading}
-              className="absolute right-1.5 h-8 w-8 rounded-full shrink-0">
-              <Send className="h-3.5 w-3.5" />
-            </Button>
+        {/* ── Input Area ─────────────────────────────────────────── */}
+        <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-background via-background/90 to-transparent pt-10 pb-6 md:pb-8 px-4">
+          <form onSubmit={handleSubmit} className="max-w-3xl mx-auto relative">
+            <div className="relative shadow-xl shadow-black/5 dark:shadow-none rounded-[1.5rem] bg-background">
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder={t("cm.placeholder")}
+                className="w-full pl-6 pr-14 py-8 rounded-[1.5rem] border-border/80 bg-muted/30 focus-visible:ring-primary focus-visible:bg-background text-base md:text-lg shadow-none"
+                disabled={isLoading}
+              />
+              <Button 
+                type="submit" 
+                size="icon" 
+                disabled={!input.trim() || isLoading}
+                className={`absolute right-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full transition-all ${
+                  input.trim() ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-muted text-muted-foreground"
+                }`}
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+            <p className="text-center text-xs text-muted-foreground mt-3 px-4">
+              AI can make mistakes. Consider verifying important information.
+            </p>
           </form>
-          <p className="text-center text-[10px] text-muted-foreground mt-1.5">{t("cm.disclaimer")}</p>
         </div>
       </div>
     </div>

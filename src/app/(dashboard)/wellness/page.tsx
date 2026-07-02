@@ -318,10 +318,15 @@ function WellnessChatOverlay({ onClose }: { onClose: () => void }) {
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [hasScrolled, setHasScrolled] = useState(false);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    setHasScrolled(e.currentTarget.scrollTop > 10);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -366,79 +371,123 @@ function WellnessChatOverlay({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-background animate-fade-in">
+    <div className="fixed inset-0 z-[100] flex flex-col bg-background animate-fade-in font-sans overflow-hidden">
+      
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 h-14 border-b border-emerald-500/20 bg-gradient-to-r from-emerald-950/50 to-background shrink-0">
-        <div className="h-8 w-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
-          <Heart className="h-4 w-4 text-emerald-400" />
+      <header className={`
+        absolute top-0 inset-x-0 h-16 px-4 flex items-center justify-between z-10 transition-all duration-300
+        ${hasScrolled ? "bg-background/80 backdrop-blur-md border-b border-emerald-500/20 shadow-sm" : "bg-transparent"}
+      `}>
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" className="h-10 w-10 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted/60" onClick={onClose}>
+            <ArrowRight className="h-5 w-5 rotate-180" />
+          </Button>
+          <div className="flex items-center gap-2 group cursor-pointer hover:bg-emerald-500/10 px-3 py-1.5 rounded-lg transition-colors">
+            <div className="h-6 w-6 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+              <Heart className="h-3.5 w-3.5 text-emerald-500" />
+            </div>
+            <span className="font-heading font-semibold text-lg text-foreground tracking-tight">Wellness Guide</span>
+          </div>
         </div>
-        <div>
-          <h2 className="font-heading font-bold text-sm">Wellness Guide</h2>
-          <p className="text-[10px] text-emerald-400/70">Your safe space 💚</p>
-        </div>
-        <Button variant="ghost" size="icon" className="ml-auto h-8 w-8 text-muted-foreground hover:text-foreground" onClick={onClose}>
-          <X className="h-4 w-4" />
-        </Button>
-      </div>
+      </header>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-3xl mx-auto px-4 py-6 space-y-5">
-          {messages.map((msg) => (
-            <div key={msg.id} className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-              {msg.role === "assistant" && (
-                <Avatar className="h-8 w-8 border border-emerald-500/30 shrink-0 mt-0.5">
-                  <AvatarFallback className="bg-emerald-500/10 text-emerald-400"><Leaf className="h-4 w-4" /></AvatarFallback>
-                </Avatar>
-              )}
-              <div className={`rounded-2xl px-4 py-2.5 max-w-[85%] text-sm whitespace-pre-wrap leading-relaxed shadow-sm ${
-                msg.role === "user"
-                  ? "bg-emerald-600 text-white rounded-tr-none"
-                  : "bg-emerald-950/40 border border-emerald-500/20 rounded-tl-none"
-              }`}>
-                {msg.content}
+      <div className="flex-1 overflow-y-auto" onScroll={handleScroll}>
+        <div className="max-w-3xl mx-auto px-4 md:px-6 pt-24 pb-32">
+          
+          {/* Welcome State */}
+          {messages.length === 1 && (
+            <div className="flex flex-col items-center justify-center py-12 text-center animate-fade-in">
+              <div className="h-24 w-24 rounded-full bg-emerald-500/10 flex items-center justify-center mb-6 shadow-xl shadow-emerald-500/5 relative">
+                <div className="absolute inset-0 bg-emerald-500/20 rounded-full animate-ping opacity-20" />
+                <Heart className="h-12 w-12 text-emerald-500 fill-emerald-500/20" />
               </div>
-              {msg.role === "user" && (
-                <Avatar className="h-8 w-8 border border-border shrink-0 mt-0.5">
-                  <AvatarFallback className="bg-muted text-muted-foreground"><User className="h-4 w-4" /></AvatarFallback>
-                </Avatar>
-              )}
-            </div>
-          ))}
-          {isLoading && (
-            <div className="flex gap-3 justify-start">
-              <Avatar className="h-8 w-8 border border-emerald-500/30 shrink-0">
-                <AvatarFallback className="bg-emerald-500/10 text-emerald-400"><Leaf className="h-4 w-4" /></AvatarFallback>
-              </Avatar>
-              <div className="rounded-2xl px-4 py-3 bg-emerald-950/40 border border-emerald-500/20 rounded-tl-none flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin text-emerald-400" />
-                <span className="text-sm text-emerald-400/70">Wellness Guide is here...</span>
-              </div>
+              <h2 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-4 tracking-tight">
+                This is a safe space.
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-lg mb-10 leading-relaxed">
+                {messages[0].content}
+              </p>
             </div>
           )}
-          <div ref={messagesEndRef} />
+
+          {/* Thread View */}
+          {messages.length > 1 && (
+            <div className="space-y-8">
+              {messages.map((message) => {
+                if (message.id === "welcome") return null;
+                return (
+                  <div key={message.id} className="flex gap-4 group md:px-4">
+                    {message.role === "assistant" ? (
+                      <div className="h-8 w-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 mt-1 shadow-sm">
+                        <Leaf className="h-4 w-4 text-emerald-500" />
+                      </div>
+                    ) : (
+                      <div className="h-8 w-8 rounded-full bg-muted border border-border flex items-center justify-center shrink-0 mt-1">
+                        <User className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                    )}
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-sm mb-1.5 text-foreground/80">
+                        {message.role === "user" ? "You" : "Wellness Guide"}
+                      </div>
+                      <div className="prose prose-p:leading-relaxed prose-p:text-[1.05rem] dark:prose-invert max-w-none text-foreground whitespace-pre-wrap font-sans">
+                        {message.content}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {isLoading && (
+                <div className="flex gap-4 md:px-4">
+                  <div className="h-8 w-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 mt-1">
+                    <Leaf className="h-4 w-4 text-emerald-500" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-semibold text-sm mb-1.5 text-foreground/80">Wellness Guide</div>
+                    <div className="flex items-center gap-2 h-7 text-[1.05rem]">
+                      <div className="h-2 w-2 bg-emerald-500/60 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="h-2 w-2 bg-emerald-500/60 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="h-2 w-2 bg-emerald-500/60 rounded-full animate-bounce"></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} className="h-4" />
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Input */}
-      <div className="shrink-0 border-t border-emerald-500/20 bg-background/90 backdrop-blur-xl px-4 pt-3 pb-20 md:pb-4">
-        <form onSubmit={handleSubmit} className="max-w-3xl mx-auto relative flex items-center">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Share what's on your mind... 💚"
-            className="pr-12 rounded-full border-emerald-500/30 bg-emerald-950/20 focus-visible:ring-emerald-500 text-sm"
-            disabled={isLoading}
-            autoFocus
-          />
-          <Button type="submit" size="icon" disabled={!input.trim() || isLoading}
-            className="absolute right-1.5 h-8 w-8 rounded-full bg-emerald-600 hover:bg-emerald-700 shrink-0">
-            <Send className="h-3.5 w-3.5" />
-          </Button>
+      {/* Input Area */}
+      <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-background via-background/90 to-transparent pt-10 pb-6 md:pb-8 px-4">
+        <form onSubmit={handleSubmit} className="max-w-3xl mx-auto relative">
+          <div className="relative shadow-xl shadow-emerald-900/5 dark:shadow-none rounded-[1.5rem] bg-background">
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Share what's on your mind... 💚"
+              className="w-full pl-6 pr-14 py-8 rounded-[1.5rem] border-emerald-500/30 bg-emerald-950/5 focus-visible:ring-emerald-500 focus-visible:bg-background text-base md:text-lg shadow-none"
+              disabled={isLoading}
+              autoFocus
+            />
+            <Button 
+              type="submit" 
+              size="icon" 
+              disabled={!input.trim() || isLoading}
+              className={`absolute right-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full transition-all ${
+                input.trim() ? "bg-emerald-600 text-white hover:bg-emerald-700" : "bg-muted text-muted-foreground"
+              }`}
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          </div>
+          <p className="text-center text-xs text-muted-foreground mt-3 px-4">
+            I&apos;m an AI companion, not a medical professional. For serious concerns, please reach out to a counselor.
+          </p>
         </form>
-        <p className="text-center text-[10px] text-muted-foreground mt-1.5">
-          I&apos;m an AI companion, not a medical professional.
-        </p>
       </div>
     </div>
   );
