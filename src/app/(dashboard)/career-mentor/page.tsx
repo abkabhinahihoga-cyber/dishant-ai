@@ -28,23 +28,23 @@ interface Conversation {
 const WELCOME_MESSAGE: Message = {
   id: "welcome",
   role: "assistant",
-  content: "Hello! I'm your AI Career Mentor. I'm here to help you navigate your career choices, prepare for interviews, or answer any questions about skills and jobs. What's on your mind today?"
+  content: "नमस्ते! मैं आपका AI Career Mentor हूँ। मैं आपकी करियर चुनने में मदद कर सकता हूँ, इंटरव्यू की तैयारी करवा सकता हूँ, या किसी भी जॉब-related सवाल का जवाब दे सकता हूँ। आज आप क्या पूछना चाहते हैं?"
 };
 
 const SUGGESTIONS: Record<string, string[]> = {
-  English: [
-    "What career suits me?",
-    "How to crack interviews?",
-    "Best skills to learn in 2025",
-    "How to write a good resume?",
-    "What is the scope of AI jobs?",
-  ],
   Hindi: [
     "मेरे लिए कौन सा करियर सही है?",
     "इंटरव्यू कैसे क्रैक करें?",
     "2025 में कौन से skills सीखें?",
     "अच्छा resume कैसे लिखें?",
     "AI jobs का scope क्या है?",
+  ],
+  English: [
+    "What career suits me?",
+    "How to crack interviews?",
+    "Best skills to learn in 2025",
+    "How to write a good resume?",
+    "What is the scope of AI jobs?",
   ],
   Hinglish: [
     "Mere liye kaunsa career sahi hai?",
@@ -90,7 +90,7 @@ export default function CareerMentorPage() {
         id: m.id, role: m.role, content: m.content
       }));
       setActiveConversationId(id);
-      setIsSidebarOpen(false);
+      setIsSidebarOpen(false); // Close sidebar automatically on mobile
       setMessages(loaded.length > 0 ? loaded : [WELCOME_MESSAGE]);
     } catch { toast.error("Could not load conversation."); }
     finally { setIsLoading(false); }
@@ -144,7 +144,7 @@ export default function CareerMentorPage() {
       const newConvId = response.headers.get("X-Conversation-Id");
       if (newConvId && newConvId !== activeConversationId) {
         setActiveConversationId(newConvId);
-        fetchHistory();
+        fetchHistory(); // Refresh history with new title
       }
 
       if (!response.body) throw new Error("No body");
@@ -176,7 +176,8 @@ export default function CareerMentorPage() {
     setHasScrolled(e.currentTarget.scrollTop > 10);
   };
 
-  const suggestions = SUGGESTIONS[language] || SUGGESTIONS["English"];
+  // Default to Hindi suggestions if language is not set to English/Hinglish
+  const suggestions = SUGGESTIONS[language] || SUGGESTIONS["Hindi"];
   const showSuggestions = messages.length === 1;
 
   return (
@@ -221,7 +222,7 @@ export default function CareerMentorPage() {
                   </div>
                 </div>
                 <Button variant="ghost" size="icon" onClick={(e) => deleteConversation(e, conv.id)}
-                  className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive hover:bg-destructive/10 shrink-0">
+                  className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive hover:bg-destructive/10 shrink-0 z-10 relative">
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
@@ -254,7 +255,7 @@ export default function CareerMentorPage() {
             </Button>
             {/* Show model info */}
             <div className="flex items-center gap-2 group cursor-pointer hover:bg-muted/50 px-3 py-1.5 rounded-lg transition-colors">
-              <span className="font-heading font-semibold text-lg text-foreground tracking-tight">Dishant <span className="text-primary">4.0</span></span>
+              <span className="font-heading font-semibold text-lg text-foreground tracking-tight">Career <span className="text-primary">Mentor</span></span>
               <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
             </div>
           </div>
@@ -275,7 +276,7 @@ export default function CareerMentorPage() {
                   <BrainCircuit className="h-10 w-10 text-primary" />
                 </div>
                 <h2 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-4 tracking-tight">
-                  How can I help you <br className="md:hidden"/> grow today?
+                  आज आप क्या सीखना <br className="md:hidden"/> चाहते हैं?
                 </h2>
                 <p className="text-lg text-muted-foreground max-w-lg mb-10">
                   {messages[0].content}
@@ -295,48 +296,51 @@ export default function CareerMentorPage() {
               </div>
             )}
 
-            {/* Message Thread */}
+            {/* Message Thread (Restored Chat Bubbles) */}
             {messages.length > 1 && (
-              <div className="space-y-8">
+              <div className="space-y-6">
                 {messages.map((message) => {
-                  if (message.id === "welcome") return null; // Skip welcome message in thread view
+                  if (message.id === "welcome") return null; 
                   
                   return (
-                    <div key={message.id} className="flex gap-4 group md:px-4">
-                      {message.role === "assistant" ? (
-                        <div className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-1 shadow-sm">
-                          <Sparkles className="h-4 w-4 text-primary" />
-                        </div>
-                      ) : (
-                        <div className="h-8 w-8 rounded-full bg-muted border border-border flex items-center justify-center shrink-0 mt-1">
-                          <User className="h-4 w-4 text-muted-foreground" />
-                        </div>
+                    <div key={message.id} className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+                      {message.role === "assistant" && (
+                        <Avatar className="h-9 w-9 border border-primary/20 shrink-0 mt-1 shadow-sm">
+                          <AvatarFallback className="bg-primary/10 text-primary">
+                            <Sparkles className="h-4 w-4" />
+                          </AvatarFallback>
+                        </Avatar>
                       )}
                       
-                      <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-sm mb-1.5 text-foreground/80">
-                          {message.role === "user" ? "You" : "Dishant AI"}
-                        </div>
-                        <div className="prose prose-p:leading-relaxed prose-p:text-[1.05rem] dark:prose-invert max-w-none text-foreground whitespace-pre-wrap font-sans">
-                          {message.content}
-                        </div>
+                      <div className={`rounded-2xl px-5 py-3.5 max-w-[85%] text-[1.05rem] whitespace-pre-wrap leading-relaxed shadow-sm font-sans ${
+                        message.role === "user"
+                          ? "bg-primary text-primary-foreground rounded-tr-none shadow-primary/20"
+                          : "bg-muted border border-border/50 rounded-tl-none text-foreground"
+                      }`}>
+                        {message.content}
                       </div>
+
+                      {message.role === "user" && (
+                        <Avatar className="h-9 w-9 border border-border shrink-0 mt-1 shadow-sm">
+                          <AvatarFallback className="bg-muted text-muted-foreground">
+                            <User className="h-4 w-4" />
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
                     </div>
                   );
                 })}
 
                 {isLoading && (
-                  <div className="flex gap-4 md:px-4">
-                    <div className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-1">
-                      <Sparkles className="h-4 w-4 text-primary" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-semibold text-sm mb-1.5 text-foreground/80">Dishant AI</div>
-                      <div className="flex items-center gap-2 h-7 text-[1.05rem]">
-                        <div className="h-2 w-2 bg-primary/60 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                        <div className="h-2 w-2 bg-primary/60 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                        <div className="h-2 w-2 bg-primary/60 rounded-full animate-bounce"></div>
-                      </div>
+                  <div className="flex gap-3 justify-start">
+                    <Avatar className="h-9 w-9 border border-primary/20 shrink-0 mt-1 shadow-sm">
+                      <AvatarFallback className="bg-primary/10 text-primary">
+                        <Sparkles className="h-4 w-4" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="rounded-2xl px-5 py-3.5 bg-muted border border-border/50 rounded-tl-none flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                      <span className="text-[1.05rem] text-muted-foreground">Career Mentor is typing...</span>
                     </div>
                   </div>
                 )}
@@ -347,28 +351,28 @@ export default function CareerMentorPage() {
         </div>
 
         {/* ── Input Area ─────────────────────────────────────────── */}
-        <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-background via-background/90 to-transparent pt-10 pb-6 md:pb-8 px-4">
-          <form onSubmit={handleSubmit} className="max-w-3xl mx-auto relative">
-            <div className="relative shadow-xl shadow-black/5 dark:shadow-none rounded-[1.5rem] bg-background">
+        <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-background via-background/90 to-transparent pt-10 pb-6 md:pb-8 px-4 pointer-events-none">
+          <form onSubmit={handleSubmit} className="max-w-3xl mx-auto relative pointer-events-auto">
+            <div className="relative shadow-2xl shadow-black/5 dark:shadow-none rounded-[1.5rem] bg-background border border-border/50">
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder={t("cm.placeholder")}
-                className="w-full pl-6 pr-14 py-8 rounded-[1.5rem] border-border/80 bg-muted/30 focus-visible:ring-primary focus-visible:bg-background text-base md:text-lg shadow-none"
+                placeholder="अपने करियर के बारे में कुछ भी पूछें..."
+                className="w-full pl-6 pr-14 py-8 rounded-[1.5rem] border-none bg-muted/20 focus-visible:ring-primary focus-visible:bg-background text-base md:text-lg shadow-none"
                 disabled={isLoading}
               />
               <Button 
                 type="submit" 
                 size="icon" 
                 disabled={!input.trim() || isLoading}
-                className={`absolute right-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full transition-all ${
-                  input.trim() ? "bg-primary text-primary-foreground hover:bg-primary/90" : "bg-muted text-muted-foreground"
+                className={`absolute right-3 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full transition-all ${
+                  input.trim() ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25" : "bg-muted text-muted-foreground"
                 }`}
               >
-                <Send className="h-4 w-4" />
+                <Send className="h-5 w-5" />
               </Button>
             </div>
-            <p className="text-center text-xs text-muted-foreground mt-3 px-4">
+            <p className="text-center text-xs text-muted-foreground mt-3 px-4 drop-shadow-md">
               AI can make mistakes. Consider verifying important information.
             </p>
           </form>
