@@ -42,7 +42,7 @@ const EXERCISES = [
     defaultTitle: "Surya Namaskar",
     duration: "15 Min",
     calories: "45 kcal",
-    youtube: "v7AYKMP6rOE", // High quality Yoga guide
+    youtube: "X-tK1jH_2i0", // 3D Animated Surya Namaskar
     gradient: "from-emerald-600 to-teal-600",
     bg: "bg-emerald-950/40",
     accent: "text-emerald-400"
@@ -53,7 +53,7 @@ const EXERCISES = [
     defaultTitle: "Full Body Fitness",
     duration: "20 Min",
     calories: "120 kcal",
-    youtube: "ml6cT4AZdqI", // HIIT Workout guide
+    youtube: "IODxDxX7oi4", // Animated Full Body Workout
     gradient: "from-rose-600 to-orange-600",
     bg: "bg-rose-950/40",
     accent: "text-rose-400"
@@ -64,7 +64,7 @@ const EXERCISES = [
     defaultTitle: "Deep Breathing",
     duration: "2 Min",
     calories: "0 kcal",
-    youtube: "acUZdGd_3zM", // Breathing guide
+    youtube: "ENYYb5vIMkU", // Animated Breathing Guide
     gradient: "from-cyan-600 to-blue-600",
     bg: "bg-cyan-950/40",
     accent: "text-cyan-400"
@@ -86,17 +86,18 @@ function ExercisePlayer({ exercise, onClose }: { exercise: typeof EXERCISES[0], 
       </div>
 
       <div className={`flex-1 flex flex-col w-full relative`}>
-        {/* YouTube Video Embed filling the screen */}
-        <div className="absolute inset-0 w-full h-full">
+        {/* Animated Video Embed filling the screen — no YouTube branding visible */}
+        <div className="absolute inset-0 w-full h-full overflow-hidden">
           <iframe
-            src={`https://www.youtube.com/embed/${exercise.youtube}?autoplay=1&loop=1&playlist=${exercise.youtube}&controls=1&showinfo=0&rel=0&modestbranding=1`}
+            src={`https://www.youtube.com/embed/${exercise.youtube}?autoplay=1&loop=1&playlist=${exercise.youtube}&controls=0&showinfo=0&rel=0&modestbranding=1&disablekb=1&fs=0&iv_load_policy=3&cc_load_policy=0`}
             title="Exercise Guide"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="w-full h-full border-0 object-cover"
-            style={{ pointerEvents: 'auto' }}
+            className="w-[300%] h-[300%] border-0 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
           ></iframe>
         </div>
+        {/* Gradient overlay at bottom to mask any remaining YouTube UI */}
+        <div className="absolute bottom-0 inset-x-0 h-20 bg-gradient-to-t from-black to-transparent pointer-events-none" />
+        <div className="absolute top-0 inset-x-0 h-10 bg-gradient-to-b from-black to-transparent pointer-events-none" />
       </div>
     </div>
   );

@@ -46,7 +46,7 @@ export function BottomNav() {
             <User className="h-5 w-5" />
             <span className="text-[10px] font-medium tracking-wide">Profile</span>
           </SheetTrigger>
-          <SheetContent side="right" className="p-0 w-80">
+          <SheetContent side="left" className="p-0 w-80">
             <SheetTitle className="sr-only">Menu</SheetTitle>
             <Sidebar className="w-full border-none h-full" />
           </SheetContent>
