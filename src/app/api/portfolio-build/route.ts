@@ -23,13 +23,15 @@ Instructions for the HTML:
 1. Output ONLY valid HTML code. Do NOT wrap it in markdown block like \`\`\`html.
 2. The HTML must include the Tailwind CSS CDN (<script src="https://cdn.tailwindcss.com"></script>) in the <head>.
 3. Add FontAwesome via CDN for icons (<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">).
-4. Use a beautiful, modern, minimalist design. Use plenty of whitespace, a nice sans-serif font (like Inter from Google Fonts), and a clean color palette (e.g. slate-900 for text, slate-50 for background, and a primary color like indigo-600).
-5. The layout must have:
-   - A Hero section with their name, role, bio, and a button linking to their social URL.
-   - A Skills section using nice badge-like spans.
-   - A Projects section using CSS Grid (cards for each project).
+4. Include Google Fonts 'Outfit' and 'Inter' (<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">).
+5. Use a highly premium, state-of-the-art tech aesthetic. Use a dark mode theme (bg-slate-950 text-slate-200) with vibrant accents (e.g., text-indigo-400 or text-rose-500). Use 'font-family: Outfit' for headings and 'Inter' for body.
+6. Layout Requirements:
+   - A stunning Hero section with a gradient text heading for their name, their role, and a glowing CTA button linking to their social URL.
+   - A Skills section using glassmorphism badge-like spans (bg-white/5 border border-white/10 backdrop-blur-md).
+   - A Projects section using CSS Grid. Project cards should have hover effects (scale-up, border glow).
    - A simple Footer.
-6. Make it fully responsive (mobile-first).
+7. Add subtle CSS animations inside a <style> tag (e.g., a float animation or fade-in) and apply them to the hero section and cards.
+8. Make it fully responsive (mobile-first).
 
 Return ONLY the raw HTML string, starting with <!DOCTYPE html>.`;
 

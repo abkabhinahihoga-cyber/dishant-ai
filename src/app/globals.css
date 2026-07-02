@@ -231,6 +231,12 @@
   animation-play-state: paused;
 }
 
+/* Sarkari-style news ticker */
+@keyframes ticker {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
 /* Hide scrollbar for mobile carousels but allow scrolling */
 .custom-scrollbar {
   -ms-overflow-style: none;  /* IE and Edge */
