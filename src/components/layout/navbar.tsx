@@ -110,11 +110,9 @@ export function Navbar() {
               
               {/* Mobile Stage Switcher (Right below logo) */}
               <Dialog open={stageModalOpen} onOpenChange={setStageModalOpen}>
-                <DialogTrigger asChild>
-                  <button className="flex items-center gap-1 mt-0.5 text-xs text-muted-foreground hover:text-foreground transition-colors group">
-                    <span className="truncate max-w-[120px]">{currentCategory.title}</span>
-                    <ChevronDown className="h-3 w-3 group-hover:text-primary transition-colors" />
-                  </button>
+                <DialogTrigger className="flex items-center gap-1 mt-0.5 text-xs text-muted-foreground hover:text-foreground transition-colors group outline-none">
+                  <span className="truncate max-w-[120px]">{currentCategory.title}</span>
+                  <ChevronDown className="h-3 w-3 group-hover:text-primary transition-colors" />
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md rounded-2xl">
                   <DialogHeader>
