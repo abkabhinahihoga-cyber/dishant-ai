@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Sparkles, Menu, Bell, User, Settings, LogOut } from "lucide-react";
+import { Sparkles, Bell, User, Settings, LogOut, ChevronDown, BookOpen, Target, GraduationCap, Briefcase, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { createClient } from "@/lib/supabase/client";
@@ -9,8 +9,15 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import { ThemeToggle } from "./theme-toggle";
 import { LanguageToggle } from "@/components/language-toggle";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Sidebar } from "@/components/layout/sidebar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { toast } from "sonner";
+
+const CATEGORIES = [
+  { id: 'school', title: 'School (9-12)', icon: BookOpen },
+  { id: 'entrance_exams', title: 'Entrance Exams', icon: Target },
+  { id: 'graduation', title: 'College', icon: GraduationCap },
+  { id: 'diploma', title: 'Diploma/ITI', icon: Briefcase },
+];
 
 export function Navbar() {
   const router = useRouter();
@@ -18,7 +25,10 @@ export function Navbar() {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState("student");
+  const [educationCategory, setEducationCategory] = useState("graduation");
   const [profileOpen, setProfileOpen] = useState(false);
+  const [stageModalOpen, setStageModalOpen] = useState(false);
+  const [savingStage, setSavingStage] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -26,22 +36,21 @@ export function Navbar() {
       const { data } = await supabase.auth.getUser();
       if (data.user) {
         setEmail(data.user.email || "");
-        // Fetch profile details
         const { data: profile } = await supabase
           .from("profiles")
-          .select("full_name, role")
+          .select("full_name, role, education_category")
           .eq("auth_user_id", data.user.id)
           .single();
         if (profile) {
           setFullName(profile.full_name || "");
           setRole(profile.role || "student");
+          if (profile.education_category) setEducationCategory(profile.education_category);
         }
       }
     };
     getUser();
   }, [supabase]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
@@ -58,94 +67,139 @@ export function Navbar() {
     router.push("/login");
   };
 
+  const currentCategory = CATEGORIES.find(c => c.id === educationCategory) || CATEGORIES[2];
+
+  const updateStage = async (newId: string) => {
+    if (newId === educationCategory) {
+      setStageModalOpen(false);
+      return;
+    }
+    
+    setSavingStage(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ education_category: newId })
+        .eq('auth_user_id', user.id);
+        
+      if (!error) {
+        setEducationCategory(newId);
+        toast.success("Education stage updated!");
+        setTimeout(() => window.location.reload(), 500); // Reload to update sidebar/features
+      } else {
+        toast.error("Failed to update stage");
+      }
+    }
+    setSavingStage(false);
+    setStageModalOpen(false);
+  };
+
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border/30 bg-background/80 backdrop-blur-xl">
-      <div className="flex h-14 md:h-16 items-center px-4 md:px-8 gap-4">
-        <Sheet>
-          <SheetTrigger className="md:hidden h-9 w-9 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground disabled:pointer-events-none disabled:opacity-50">
-            <Menu className="h-5 w-5" />
-          </SheetTrigger>
-          <SheetContent side="left" className="p-0 w-72">
-            <Sidebar className="w-full border-none" />
-          </SheetContent>
-        </Sheet>
+    <header className="sticky top-0 z-40 w-full border-b border-border/30 bg-background/95 backdrop-blur-xl">
+      <div className="flex h-16 items-center px-4 md:px-8 justify-between">
         
-        <Link href="/dashboard" className="flex items-center gap-2.5 mr-4">
-          <div className="bg-gradient-to-br from-primary to-primary/70 p-1.5 rounded-lg shadow-sm">
-            <Sparkles className="h-4 w-4 text-primary-foreground" />
-          </div>
-          <span className="font-heading font-bold text-lg hidden sm:inline-block tracking-tight">Dishant AI</span>
-        </Link>
+        {/* Left: Logo & Stage Switcher */}
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard" className="flex items-center">
+            <div className="bg-gradient-to-br from-indigo-500 to-violet-600 p-1.5 md:p-2 rounded-xl shadow-lg shadow-indigo-500/20 mr-2 md:mr-3">
+              <Sparkles className="h-4 w-4 md:h-5 md:w-5 text-white" />
+            </div>
+            <div className="flex flex-col">
+              <span className="font-heading font-bold text-base md:text-xl leading-none tracking-tight">Dishant AI</span>
+              
+              {/* Mobile Stage Switcher (Right below logo) */}
+              <Dialog open={stageModalOpen} onOpenChange={setStageModalOpen}>
+                <DialogTrigger asChild>
+                  <button className="flex items-center gap-1 mt-0.5 text-xs text-muted-foreground hover:text-foreground transition-colors group">
+                    <span className="truncate max-w-[120px]">{currentCategory.title}</span>
+                    <ChevronDown className="h-3 w-3 group-hover:text-primary transition-colors" />
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md rounded-2xl">
+                  <DialogHeader>
+                    <DialogTitle className="font-heading text-xl">Select Education Stage</DialogTitle>
+                  </DialogHeader>
+                  <div className="grid grid-cols-1 gap-3 py-4">
+                    {CATEGORIES.map((cat) => (
+                      <button
+                        key={cat.id}
+                        onClick={() => updateStage(cat.id)}
+                        disabled={savingStage}
+                        className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all ${
+                          educationCategory === cat.id 
+                            ? "border-indigo-500 bg-indigo-50" 
+                            : "border-border hover:border-indigo-200 hover:bg-slate-50"
+                        }`}
+                      >
+                        <div className={`p-2 rounded-lg ${educationCategory === cat.id ? "bg-indigo-500 text-white" : "bg-slate-100 text-slate-500"}`}>
+                          <cat.icon className="h-5 w-5" />
+                        </div>
+                        <span className="font-semibold">{cat.title}</span>
+                        {savingStage && educationCategory !== cat.id && <Loader2 className="ml-auto h-4 w-4 animate-spin text-muted-foreground" />}
+                      </button>
+                    ))}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </Link>
+        </div>
         
-        <div className="flex items-center gap-4">
+        {/* Right: Actions */}
+        <div className="flex items-center gap-2 md:gap-4">
           <LanguageToggle />
           <ThemeToggle />
-          <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground">
-            <Bell className="h-4 w-4 text-muted-foreground" />
+          <Button variant="ghost" size="icon" className="relative text-muted-foreground hover:text-foreground hidden sm:inline-flex">
+            <Bell className="h-5 w-5" />
             <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary ring-2 ring-background"></span>
           </Button>
 
-          {/* Profile Dropdown */}
-          <div className="relative" ref={profileRef}>
+          {/* Profile Dropdown (Desktop Only) - Mobile uses bottom nav */}
+          <div className="relative hidden md:block" ref={profileRef}>
             <button
               onClick={() => setProfileOpen(!profileOpen)}
-              className="relative h-9 w-9 rounded-xl outline-none inline-flex items-center justify-center transition-colors hover:bg-accent"
+              className="relative h-10 w-10 rounded-xl outline-none inline-flex items-center justify-center transition-colors hover:bg-accent"
             >
-              <Avatar className="h-9 w-9 rounded-xl border border-border/50">
+              <Avatar className="h-10 w-10 rounded-xl border border-border/50">
                 <AvatarImage src="" alt="@user" />
-                <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/5 text-primary rounded-xl">
-                  <User className="h-4 w-4" />
+                <AvatarFallback className="bg-gradient-to-br from-indigo-500/20 to-violet-500/5 text-indigo-600 rounded-xl">
+                  <User className="h-5 w-5" />
                 </AvatarFallback>
               </Avatar>
             </button>
 
             {profileOpen && (
-              <div className="absolute right-0 mt-2 w-64 rounded-xl border border-border/50 bg-popover text-popover-foreground shadow-lg ring-1 ring-foreground/5 z-50 overflow-hidden animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-200">
-                {/* Profile Header */}
-                <div className="px-4 py-3 border-b border-border/30">
+              <div className="absolute right-0 mt-2 w-64 rounded-xl border border-border/50 bg-popover text-popover-foreground shadow-xl ring-1 ring-foreground/5 z-50 overflow-hidden animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-200">
+                <div className="px-4 py-3 border-b border-border/30 bg-slate-50/50">
                   <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10 rounded-xl border border-border/50">
-                      <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/5 text-primary rounded-xl">
+                    <Avatar className="h-10 w-10 rounded-xl border border-border/50 bg-white">
+                      <AvatarFallback className="bg-gradient-to-br from-indigo-500/20 to-violet-500/5 text-indigo-600 rounded-xl">
                         <User className="h-5 w-5" />
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col min-w-0">
-                      <p className="text-sm font-semibold truncate">{fullName || "Student"}</p>
+                      <p className="text-sm font-bold truncate">{fullName || "Student"}</p>
                       <p className="text-xs text-muted-foreground truncate">{email}</p>
-                      <span className="text-[10px] font-medium uppercase tracking-wider text-primary mt-0.5">{role}</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-600 mt-0.5">{role}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Menu Items */}
-                <div className="py-1.5">
-                  <Link
-                    href="/settings"
-                    onClick={() => setProfileOpen(false)}
-                    className="flex items-center gap-2.5 px-4 py-2 text-sm text-foreground hover:bg-accent transition-colors cursor-pointer"
-                  >
-                    <Settings className="h-4 w-4 text-muted-foreground" />
-                    Profile & Settings
+                <div className="py-2">
+                  <Link href="/settings" onClick={() => setProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-foreground hover:bg-slate-100 transition-colors">
+                    <Settings className="h-4 w-4 text-slate-500" /> Settings
                   </Link>
                   {role === "admin" && (
-                    <Link
-                      href="/admin"
-                      onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2 text-sm text-foreground hover:bg-accent transition-colors cursor-pointer"
-                    >
-                      <Sparkles className="h-4 w-4 text-muted-foreground" />
-                      Admin Panel
+                    <Link href="/admin" onClick={() => setProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-foreground hover:bg-slate-100 transition-colors">
+                      <Sparkles className="h-4 w-4 text-indigo-500" /> Admin Panel
                     </Link>
                   )}
                 </div>
 
-                <div className="border-t border-border/30 py-1.5">
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-2.5 px-4 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors cursor-pointer w-full text-left"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Log out
+                <div className="border-t border-border/30 py-2">
+                  <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors w-full text-left">
+                    <LogOut className="h-4 w-4" /> Log out
                   </button>
                 </div>
               </div>
