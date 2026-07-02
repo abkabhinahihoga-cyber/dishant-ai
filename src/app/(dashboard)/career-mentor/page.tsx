@@ -219,7 +219,7 @@ export default function CareerMentorPage() {
       
       {/* ── Sidebar (History) ────────────────────────────────────── */}
       <aside className={`
-        flex flex-col w-72 shrink-0 border-r border-border/40 bg-muted/20
+        flex flex-col w-72 shrink-0 border-r border-border/40 bg-background md:bg-muted/20 shadow-2xl md:shadow-none
         fixed md:relative inset-y-0 left-0 z-[110] transition-transform duration-300 ease-in-out
         ${isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
       `}>
@@ -235,13 +235,13 @@ export default function CareerMentorPage() {
         
         <div className="p-3 shrink-0">
           <Button onClick={startNewChat} className="w-full gap-2 justify-start h-10 bg-background shadow-sm hover:bg-muted border border-border/50 text-foreground" variant="outline">
-            <Plus className="h-4 w-4" /> New Chat
+            <Plus className="h-4 w-4" /> {t('newChat', 'New Chat')}
           </Button>
         </div>
         
         <ScrollArea className="flex-1 px-3 pb-4">
           <div className="space-y-1">
-            <div className="text-xs font-semibold text-muted-foreground mb-3 mt-2 px-2">History</div>
+            <div className="text-xs font-semibold text-muted-foreground mb-3 mt-2 px-2">{t('history', 'History')}</div>
             {conversations.map((conv) => (
               <div key={conv.id} onClick={() => loadConversation(conv.id)}
                 className={`flex items-center justify-between group p-2.5 rounded-lg cursor-pointer transition-colors ${
@@ -262,7 +262,7 @@ export default function CareerMentorPage() {
             ))}
             {conversations.length === 0 && (
               <div className="text-center p-6 text-sm text-muted-foreground mt-4">
-                No chat history yet.
+                {t('noChatHistory', 'No chat history yet.')}
               </div>
             )}
           </div>
@@ -288,7 +288,7 @@ export default function CareerMentorPage() {
             </Button>
             {/* Show model info */}
             <div className="flex items-center gap-2 group cursor-pointer hover:bg-muted/50 px-3 py-1.5 rounded-lg transition-colors">
-              <span className="font-heading font-semibold text-lg text-foreground tracking-tight">Career <span className="text-primary">Mentor</span></span>
+              <span className="font-heading font-semibold text-lg text-foreground tracking-tight">{t('careerMentor', 'Career Mentor')}</span>
               <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
             </div>
           </div>
@@ -373,7 +373,7 @@ export default function CareerMentorPage() {
                     </Avatar>
                     <div className="rounded-2xl px-5 py-3.5 bg-muted border border-border/50 rounded-tl-none flex items-center gap-2">
                       <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                      <span className="text-[1.05rem] text-muted-foreground">Career Mentor is typing...</span>
+                      <span className="text-[1.05rem] text-muted-foreground">{t('mentorTyping', 'Career Mentor is typing...')}</span>
                     </div>
                   </div>
                 )}
@@ -386,12 +386,12 @@ export default function CareerMentorPage() {
         {/* ── Input Area ─────────────────────────────────────────── */}
         <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-background via-background/90 to-transparent pt-10 pb-6 md:pb-8 px-4 pointer-events-none">
           <form onSubmit={handleSubmit} className="max-w-3xl mx-auto relative pointer-events-auto">
-            <div className="relative shadow-2xl shadow-black/5 dark:shadow-none rounded-[1.5rem] bg-background border border-border/50">
+            <div className="relative shadow-2xl shadow-black/10 dark:shadow-none rounded-[1.5rem] bg-background border border-border">
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="अपने करियर के बारे में कुछ भी पूछें..."
-                className="w-full pl-6 pr-24 py-8 rounded-[1.5rem] border-none bg-muted/20 focus-visible:ring-primary focus-visible:bg-background text-base md:text-lg shadow-none"
+                placeholder={t('askCareerPlaceholder', 'Ask anything about your career...')}
+                className="w-full pl-6 pr-24 py-8 rounded-[1.5rem] border-none bg-background focus-visible:ring-primary text-base md:text-lg shadow-inner shadow-black/5 dark:shadow-white/5"
                 disabled={isLoading}
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
@@ -417,7 +417,7 @@ export default function CareerMentorPage() {
               </div>
             </div>
             <p className="text-center text-xs text-muted-foreground mt-3 px-4 drop-shadow-md">
-              AI can make mistakes. Consider verifying important information.
+              {t('aiDisclaimer', 'AI can make mistakes. Consider verifying important information.')}
             </p>
           </form>
         </div>

@@ -9,10 +9,11 @@ import dynamic from "next/dynamic";
 const Player = dynamic(() => import("@lottiefiles/react-lottie-player").then(mod => mod.Player), { ssr: false });
 import {
   Heart, Leaf, Sun, Send, User, Loader2, X, Wind,
-  Flame, Dumbbell, Brain, ArrowRight, Play, Pause, ChevronRight, Activity, Mic, MicOff
+  Flame, Dumbbell, Brain, ArrowRight, Play, Pause, ChevronRight, Activity, Mic, MicOff, MessageCircle
 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
+import { useTranslation } from "@/lib/i18n/use-translation";
 
 interface Message {
   id: string;
@@ -37,32 +38,33 @@ const LOTTIE_URLS = {
 const EXERCISES = [
   {
     id: "yoga",
-    title: "Surya Namaskar",
+    titleKey: "suryaNamaskar",
+    defaultTitle: "Surya Namaskar",
     duration: "15 Min",
     calories: "45 kcal",
-    lottie: "https://lottie.host/809a4739-c5c8-4796-bf9c-6a75168d1b11/2zZ0x1O1gO.json", // Human workout / yoga substitute
-    audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", // Calm background music
+    youtube: "v7AYKMP6rOE", // High quality Yoga guide
     gradient: "from-emerald-600 to-teal-600",
     bg: "bg-emerald-950/40",
     accent: "text-emerald-400"
   },
   {
     id: "workout",
-    title: "Full Body Fitness",
+    titleKey: "fullBodyFitness",
+    defaultTitle: "Full Body Fitness",
     duration: "20 Min",
     calories: "120 kcal",
-    lottie: "https://lottie.host/0233e7f4-b2cc-4a94-81cc-24b51829e05f/G5Z5K5O1b5.json", // Human exercising
-    audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3", // Energetic track
+    youtube: "ml6cT4AZdqI", // HIIT Workout guide
     gradient: "from-rose-600 to-orange-600",
     bg: "bg-rose-950/40",
     accent: "text-rose-400"
   },
   {
     id: "breathing",
-    title: "Deep Breathing",
+    titleKey: "deepBreathing",
+    defaultTitle: "Deep Breathing",
     duration: "2 Min",
     calories: "0 kcal",
-    lottie: "https://assets3.lottiefiles.com/packages/lf20_vnikrcia.json",
+    youtube: "acUZdGd_3zM", // Breathing guide
     gradient: "from-cyan-600 to-blue-600",
     bg: "bg-cyan-950/40",
     accent: "text-cyan-400"
@@ -71,56 +73,29 @@ const EXERCISES = [
 
 // ── Exercise Player Modal ─────────────────────────────────────────────
 function ExercisePlayer({ exercise, onClose }: { exercise: typeof EXERCISES[0], onClose: () => void }) {
-  const [isPlaying, setIsPlaying] = useState(true);
-  const audioRef = useRef<HTMLAudioElement>(null);
-
-  useEffect(() => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.play().catch(e => console.log("Audio play blocked", e));
-      } else {
-        audioRef.current.pause();
-      }
-    }
-  }, [isPlaying]);
+  const { t } = useTranslation();
 
   return (
-    <div className="fixed inset-0 z-[120] bg-background flex flex-col animate-in slide-in-from-bottom-4 duration-300">
-      {/* Background Audio */}
-      <audio ref={audioRef} src={exercise.audio} loop autoPlay className="hidden" />
-
-      <div className="flex items-center justify-between p-4 border-b border-border/40">
-        <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full">
+    <div className="fixed inset-0 z-[120] bg-black flex flex-col animate-in slide-in-from-bottom-4 duration-300">
+      <div className="flex items-center justify-between p-4 border-b border-white/10 text-white relative z-10 bg-black/50 backdrop-blur-md">
+        <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full text-white hover:bg-white/20">
           <X className="h-6 w-6" />
         </Button>
-        <span className="font-heading font-semibold">{exercise.title}</span>
+        <span className="font-heading font-semibold">{t(exercise.titleKey, exercise.defaultTitle)}</span>
         <div className="w-10" />
       </div>
 
-      <div className={`flex-1 flex flex-col items-center justify-center p-6 ${exercise.bg}`}>
-        {/* Lottie Animation Player */}
-        <div className="w-full max-w-sm aspect-square relative mb-8 rounded-full shadow-2xl overflow-hidden bg-background/50 backdrop-blur-xl border border-white/10 flex items-center justify-center">
-          <Player
-            autoplay
-            loop
-            src={exercise.lottie}
-            style={{ height: '100%', width: '100%' }}
-          />
-        </div>
-
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-heading font-bold mb-2">{exercise.title}</h2>
-          <div className="flex items-center justify-center gap-4 text-muted-foreground font-medium">
-            <span className="flex items-center gap-1"><Activity className="h-4 w-4" /> {exercise.duration}</span>
-            <span>•</span>
-            <span className="flex items-center gap-1"><Flame className="h-4 w-4" /> {exercise.calories}</span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-6">
-          <Button variant="outline" size="icon" className="h-16 w-16 rounded-full border-2 border-muted-foreground/30 hover:bg-muted" onClick={() => setIsPlaying(!isPlaying)}>
-             {isPlaying ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8 ml-1" />}
-          </Button>
+      <div className={`flex-1 flex flex-col w-full relative`}>
+        {/* YouTube Video Embed filling the screen */}
+        <div className="absolute inset-0 w-full h-full">
+          <iframe
+            src={`https://www.youtube.com/embed/${exercise.youtube}?autoplay=1&loop=1&playlist=${exercise.youtube}&controls=1&showinfo=0&rel=0&modestbranding=1`}
+            title="Exercise Guide"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="w-full h-full border-0 object-cover"
+            style={{ pointerEvents: 'auto' }}
+          ></iframe>
         </div>
       </div>
     </div>
@@ -130,7 +105,14 @@ function ExercisePlayer({ exercise, onClose }: { exercise: typeof EXERCISES[0], 
 
 // ── Chat Overlay (ChatGPT Style) ──────────────────────────────────────────────────
 function WellnessChatOverlay({ onClose }: { onClose: () => void }) {
-  const [messages, setMessages] = useState<Message[]>([WELCOME_MESSAGE]);
+  const { t } = useTranslation();
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: "welcome",
+      role: "assistant",
+      content: t('wellnessGreeting', "नमस्ते! मैं आपका Wellness Guide हूँ 💚 मैं तनाव, चिंता, और भावनाओं को समझने में आपकी मदद करूँगा। आज आप कैसा महसूस कर रहे हैं?"),
+    }
+  ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -236,7 +218,7 @@ function WellnessChatOverlay({ onClose }: { onClose: () => void }) {
             <div className="h-6 w-6 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
               <Heart className="h-3.5 w-3.5 text-emerald-500" />
             </div>
-            <span className="font-heading font-semibold text-lg text-foreground tracking-tight">Wellness Guide</span>
+            <span className="font-heading font-semibold text-lg text-foreground tracking-tight">{t('wellnessGuide', 'Wellness Guide')}</span>
           </div>
         </div>
       </header>
@@ -253,14 +235,19 @@ function WellnessChatOverlay({ onClose }: { onClose: () => void }) {
                 <Heart className="h-12 w-12 text-emerald-500 fill-emerald-500/20" />
               </div>
               <h2 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-4 tracking-tight">
-                This is a safe space.
+                {t('safeSpace', 'This is a safe space.')}
               </h2>
               <p className="text-lg text-muted-foreground max-w-lg mb-10 leading-relaxed">
                 {messages[0].content}
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl">
-                {["मुझे बहुत स्ट्रेस हो रहा है।", "नींद नहीं आ रही, क्या करूँ?", "एंग्जायटी से कैसे बचें?", "मुझे अच्छा महसूस नहीं हो रहा।"].map((s, i) => (
+                {[
+                  t('suggestionStress', "मुझे बहुत स्ट्रेस हो रहा है।"),
+                  t('suggestionSleep', "नींद नहीं आ रही, क्या करूँ?"),
+                  t('suggestionAnxiety', "एंग्जायटी से कैसे बचें?"),
+                  t('suggestionSad', "मुझे अच्छा महसूस नहीं हो रहा।")
+                ].map((s, i) => (
                   <button
                     key={i}
                     onClick={() => { setInput(s); document.querySelector("form")?.requestSubmit(); }}
@@ -310,7 +297,7 @@ function WellnessChatOverlay({ onClose }: { onClose: () => void }) {
                   </Avatar>
                   <div className="rounded-2xl px-5 py-3.5 bg-muted border border-border/50 rounded-tl-none flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin text-emerald-500" />
-                    <span className="text-[1.05rem] text-muted-foreground">Wellness Guide is typing...</span>
+                    <span className="text-[1.05rem] text-muted-foreground">{t('wellnessTyping', 'Wellness Guide is typing...')}</span>
                   </div>
                 </div>
               )}
@@ -323,12 +310,12 @@ function WellnessChatOverlay({ onClose }: { onClose: () => void }) {
       {/* Input Area */}
       <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-background via-background/90 to-transparent pt-10 pb-6 md:pb-8 px-4 pointer-events-none">
         <form onSubmit={handleSubmit} className="max-w-3xl mx-auto relative pointer-events-auto">
-          <div className="relative shadow-2xl shadow-emerald-900/10 dark:shadow-none rounded-[1.5rem] bg-background border border-border/50">
+          <div className="relative shadow-2xl shadow-emerald-900/10 dark:shadow-none rounded-[1.5rem] bg-background border border-emerald-500/20">
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="अपनी परेशानी यहाँ साझा करें... 💚"
-              className="w-full pl-6 pr-24 py-8 rounded-[1.5rem] border-none bg-muted/20 focus-visible:ring-emerald-500 focus-visible:bg-background text-base md:text-lg shadow-none"
+              placeholder={t('wellnessPlaceholder', "अपनी परेशानी यहाँ साझा करें... 💚")}
+              className="w-full pl-6 pr-24 py-8 rounded-[1.5rem] border-none bg-background focus-visible:ring-emerald-500 text-base md:text-lg shadow-inner shadow-black/5 dark:shadow-white/5"
               disabled={isLoading}
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
@@ -354,7 +341,7 @@ function WellnessChatOverlay({ onClose }: { onClose: () => void }) {
             </div>
           </div>
           <p className="text-center text-xs text-muted-foreground mt-3 px-4 drop-shadow-md">
-            I&apos;m an AI companion, not a medical professional. For serious concerns, please reach out to a counselor.
+            {t('wellnessDisclaimer', "I'm an AI companion, not a medical professional. For serious concerns, please reach out to a counselor.")}
           </p>
         </form>
       </div>
@@ -364,6 +351,7 @@ function WellnessChatOverlay({ onClose }: { onClose: () => void }) {
 
 // ── MAIN PAGE (Premium Fitness App Style) ─────────────────────────────────────────────────────
 export default function WellnessPage() {
+  const { t } = useTranslation();
   const [chatOpen, setChatOpen] = useState(false);
   const [activeExercise, setActiveExercise] = useState<typeof EXERCISES[0] | null>(null);
 
@@ -377,35 +365,37 @@ export default function WellnessPage() {
         {/* Header */}
         <div className="pt-6 px-4 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-heading font-black">Wellbeing</h1>
-            <p className="text-muted-foreground font-medium">Your daily fitness & mind space</p>
+            <h1 className="text-3xl font-heading font-black">{t('wellbeing', 'Wellbeing')}</h1>
+            <p className="text-muted-foreground font-medium">{t('wellbeingDesc', 'Your daily fitness & mind space')}</p>
           </div>
           <div className="h-12 w-12 rounded-full bg-emerald-500/10 flex items-center justify-center">
             <Flame className="h-6 w-6 text-emerald-500" />
           </div>
         </div>
 
-        {/* AI Guide Card */}
+        {/* AI Guide Interactive Chat Box Redesign */}
         <div className="px-4">
-          <div 
-            onClick={() => setChatOpen(true)}
-            className="cursor-pointer relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-emerald-600 to-teal-800 p-6 shadow-2xl shadow-emerald-900/20 group"
-          >
-            {/* Background Decoration */}
-            <div className="absolute -right-8 -top-8 w-40 h-40 bg-white/10 rounded-full blur-2xl group-hover:scale-110 transition-transform duration-700" />
-            
-            <div className="relative z-10 flex flex-col h-full">
-              <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center mb-4 backdrop-blur-sm">
-                <Brain className="h-5 w-5 text-white" />
-              </div>
-              <h3 className="font-heading font-bold text-white text-2xl mb-1">Talk to AI Guide</h3>
-              <p className="text-emerald-50/80 text-sm mb-6">Feeling stressed? Tap here to start a therapeutic conversation in Hindi.</p>
-              
-              <div className="mt-auto flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-white/90 bg-white/20 px-3 py-1.5 rounded-full backdrop-blur-sm">Available 24/7</span>
-                <div className="h-8 w-8 rounded-full bg-white text-emerald-600 flex items-center justify-center group-hover:translate-x-1 transition-transform">
-                  <ArrowRight className="h-4 w-4" />
+          <div className="rounded-[2rem] bg-gradient-to-br from-emerald-600 to-teal-800 p-1 shadow-2xl shadow-emerald-900/20">
+            <div className="bg-background/95 rounded-[1.85rem] p-5 flex flex-col gap-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+                  <Brain className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
+                <div>
+                  <h3 className="font-heading font-bold text-foreground text-lg">{t('talkToAiGuide', 'AI Wellness Guide')}</h3>
+                  <p className="text-muted-foreground text-xs">{t('aiAvailable', 'Available 24/7 for you')}</p>
+                </div>
+              </div>
+              
+              <div 
+                onClick={() => setChatOpen(true)}
+                className="bg-muted/50 hover:bg-emerald-500/10 border border-border/50 hover:border-emerald-500/30 rounded-2xl p-4 flex items-center gap-3 cursor-text transition-colors"
+              >
+                <MessageCircle className="h-5 w-5 text-muted-foreground" />
+                <span className="text-muted-foreground flex-1">{t('wellnessPlaceholder', "अपनी परेशानी यहाँ साझा करें... 💚")}</span>
+                <Button size="icon" className="h-8 w-8 rounded-full bg-emerald-600 hover:bg-emerald-700 shrink-0">
+                  <ArrowRight className="h-4 w-4 text-white" />
+                </Button>
               </div>
             </div>
           </div>
@@ -414,8 +404,8 @@ export default function WellnessPage() {
         {/* Categories / Exercises */}
         <div className="px-4 mt-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-heading font-bold">Daily Routines</h2>
-            <Link href="#" className="text-sm text-primary font-medium">See All</Link>
+            <h2 className="text-xl font-heading font-bold">{t('dailyRoutines', 'Daily Routines')}</h2>
+            <Link href="#" className="text-sm text-primary font-medium">{t('seeAll', 'See All')}</Link>
           </div>
 
           <div className="grid grid-cols-1 gap-4">
@@ -426,17 +416,12 @@ export default function WellnessPage() {
                 className={`cursor-pointer group flex items-center gap-4 p-4 rounded-3xl border border-border/40 bg-card hover:bg-muted/50 transition-colors shadow-sm`}
               >
                 <div className={`h-20 w-20 rounded-2xl bg-gradient-to-br ${ex.gradient} flex items-center justify-center shrink-0 shadow-inner relative overflow-hidden`}>
-                  {/* We use the Lottie player as a thumbnail here too, scaled down */}
-                  <Player
-                    autoplay
-                    loop
-                    src={ex.lottie}
-                    style={{ height: '150%', width: '150%' }}
-                  />
+                  <Play className="h-8 w-8 text-white/80 absolute z-10 drop-shadow-md" />
+                  <div className="absolute inset-0 bg-black/20" />
                 </div>
                 
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-heading font-bold text-lg mb-1">{ex.title}</h3>
+                  <h3 className="font-heading font-bold text-lg mb-1">{t(ex.titleKey, ex.defaultTitle)}</h3>
                   <div className="flex items-center gap-3 text-sm text-muted-foreground font-medium">
                     <span className="flex items-center gap-1"><Activity className="h-3.5 w-3.5" /> {ex.duration}</span>
                     <span className="flex items-center gap-1"><Flame className="h-3.5 w-3.5" /> {ex.calories}</span>

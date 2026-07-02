@@ -8,7 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createClient } from "@/lib/supabase/client";
-import { Sparkles, ArrowRight, ArrowLeft, Loader2, BookOpen, GraduationCap, Briefcase, Target, Rocket } from "lucide-react";
+import { 
+  ArrowRight, BookOpen, Target, GraduationCap, 
+  Briefcase, Sparkles, Building2, Rocket, ArrowLeft, Loader2 
+} from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -153,6 +156,7 @@ export default function OnboardingPage() {
                     {[
                       { id: 'school', title: 'School (9-12)', icon: BookOpen, desc: 'CBSE, State Boards', color: 'bg-blue-500', light: 'bg-blue-50 border-blue-200' },
                       { id: 'entrance_exams', title: 'Entrance Exams', icon: Target, desc: 'JEE, NEET, CUET', color: 'bg-red-500', light: 'bg-red-50 border-red-200' },
+                      { id: 'government_exams', title: 'Govt Exams', icon: Building2, desc: 'UPSC, SSC, Banking', color: 'bg-amber-500', light: 'bg-amber-50 border-amber-200' },
                       { id: 'graduation', title: 'College', icon: GraduationCap, desc: 'B.Tech, B.Sc, BCA', color: 'bg-indigo-500', light: 'bg-indigo-50 border-indigo-200' },
                       { id: 'diploma', title: 'Diploma/ITI', icon: Briefcase, desc: 'Polytechnic, ITI', color: 'bg-emerald-500', light: 'bg-emerald-50 border-emerald-200' },
                     ].map((item) => (
@@ -229,6 +233,19 @@ export default function OnboardingPage() {
                         <div className="space-y-2.5">
                           <label className="text-sm font-bold text-slate-700">किस exam की तैयारी कर रहे हैं?</label>
                           <Input name="examName" placeholder="e.g. JEE, NEET, NDA" value={formData.examName} onChange={handleChange} className="h-14 rounded-2xl bg-slate-50/50 border-slate-200 font-medium text-base" />
+                        </div>
+                        <div className="space-y-2.5">
+                          <label className="text-sm font-bold text-slate-700">Target Year</label>
+                          <Input name="examYear" type="number" placeholder="e.g. 2025" value={formData.examYear} onChange={handleChange} className="h-14 rounded-2xl bg-slate-50/50 border-slate-200 font-medium text-base" />
+                        </div>
+                      </div>
+                    )}
+
+                    {formData.educationCategory === 'government_exams' && (
+                      <div className="space-y-5">
+                        <div className="space-y-2.5">
+                          <label className="text-sm font-bold text-slate-700">किस Government Exam की तैयारी कर रहे हैं?</label>
+                          <Input name="examName" placeholder="e.g. UPSC, SSC CGL, Bank PO" value={formData.examName} onChange={handleChange} className="h-14 rounded-2xl bg-slate-50/50 border-slate-200 font-medium text-base" />
                         </div>
                         <div className="space-y-2.5">
                           <label className="text-sm font-bold text-slate-700">Target Year</label>
