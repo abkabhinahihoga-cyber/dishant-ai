@@ -189,6 +189,36 @@ export default function SettingsPage() {
         </p>
       </div>
 
+      {/* Education Stage Card - Always visible at top */}
+      <Card className="p-6 glass-card border-none shadow-xl">
+        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <GraduationCap className="h-5 w-5 text-primary" />
+          Education Stage (शिक्षा स्तर)
+        </h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          Change your education stage to update which features are available in your sidebar. यह बदलने से sidebar में दिखने वाले features बदल जाएंगे।
+        </p>
+        <Select value={educationCategory} onValueChange={(v) => setEducationCategory(v || "")}>
+          <SelectTrigger className="bg-background/50 h-12">
+            <SelectValue placeholder="Select your current stage" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="school">🏫 School (Class 9-12)</SelectItem>
+            <SelectItem value="entrance_exams">🎯 Entrance Exams (JEE, NEET, CUET, GATE)</SelectItem>
+            <SelectItem value="graduation">🎓 Graduation / College (B.Tech, B.Sc, BCA, MCA)</SelectItem>
+            <SelectItem value="diploma">🔧 Diploma / ITI</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button 
+          onClick={saveProfile} 
+          disabled={saving}
+          className="w-full gap-2 mt-4"
+        >
+          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          Save Changes
+        </Button>
+      </Card>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="p-6 glass-card border-none shadow-xl space-y-6">
           <div>
