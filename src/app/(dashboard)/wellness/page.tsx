@@ -9,7 +9,7 @@ import dynamic from "next/dynamic";
 const Player = dynamic(() => import("@lottiefiles/react-lottie-player").then(mod => mod.Player), { ssr: false });
 import {
   Heart, Leaf, Sun, Send, User, Loader2, X, Wind,
-  Flame, Dumbbell, Brain, ArrowRight, Play, Pause, ChevronRight, Activity
+  Flame, Dumbbell, Brain, ArrowRight, Play, Pause, ChevronRight, Activity, Mic, MicOff
 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -36,31 +36,23 @@ const LOTTIE_URLS = {
 
 const EXERCISES = [
   {
-    id: "meditation",
-    title: "Guided Meditation",
-    duration: "5 Min",
-    calories: "10 kcal",
-    lottie: "https://assets8.lottiefiles.com/packages/lf20_tutvdkg0.json",
-    gradient: "from-indigo-600 to-purple-600",
-    bg: "bg-indigo-950/40",
-    accent: "text-indigo-400"
-  },
-  {
     id: "yoga",
-    title: "Morning Yoga Flow",
+    title: "Surya Namaskar",
     duration: "15 Min",
     calories: "45 kcal",
-    lottie: "https://assets1.lottiefiles.com/packages/lf20_1yy002na.json",
+    lottie: "https://lottie.host/809a4739-c5c8-4796-bf9c-6a75168d1b11/2zZ0x1O1gO.json", // Human workout / yoga substitute
+    audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", // Calm background music
     gradient: "from-emerald-600 to-teal-600",
     bg: "bg-emerald-950/40",
     accent: "text-emerald-400"
   },
   {
     id: "workout",
-    title: "Full Body HIIT",
+    title: "Full Body Fitness",
     duration: "20 Min",
     calories: "120 kcal",
-    lottie: "https://assets9.lottiefiles.com/packages/lf20_z3pnispa.json",
+    lottie: "https://lottie.host/0233e7f4-b2cc-4a94-81cc-24b51829e05f/G5Z5K5O1b5.json", // Human exercising
+    audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3", // Energetic track
     gradient: "from-rose-600 to-orange-600",
     bg: "bg-rose-950/40",
     accent: "text-rose-400"
@@ -80,9 +72,23 @@ const EXERCISES = [
 // ── Exercise Player Modal ─────────────────────────────────────────────
 function ExercisePlayer({ exercise, onClose }: { exercise: typeof EXERCISES[0], onClose: () => void }) {
   const [isPlaying, setIsPlaying] = useState(true);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.play().catch(e => console.log("Audio play blocked", e));
+      } else {
+        audioRef.current.pause();
+      }
+    }
+  }, [isPlaying]);
 
   return (
     <div className="fixed inset-0 z-[120] bg-background flex flex-col animate-in slide-in-from-bottom-4 duration-300">
+      {/* Background Audio */}
+      <audio ref={audioRef} src={exercise.audio} loop autoPlay className="hidden" />
+
       <div className="flex items-center justify-between p-4 border-b border-border/40">
         <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full">
           <X className="h-6 w-6" />
@@ -128,8 +134,41 @@ function WellnessChatOverlay({ onClose }: { onClose: () => void }) {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [isListening, setIsListening] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [hasScrolled, setHasScrolled] = useState(false);
+
+  // Web Speech API
+  const startListening = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      toast.error("Voice input is not supported in this browser.");
+      return;
+    }
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'hi-IN'; // Defaulting wellness to Hindi
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      toast.info("Listening...");
+    };
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setInput((prev) => prev ? prev + " " + transcript : transcript);
+    };
+
+    recognition.onerror = () => {
+      toast.error("Could not recognize voice. Please try again.");
+      setIsListening(false);
+    };
+
+    recognition.onend = () => setIsListening(false);
+
+    recognition.start();
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -289,19 +328,30 @@ function WellnessChatOverlay({ onClose }: { onClose: () => void }) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="अपनी परेशानी यहाँ साझा करें... 💚"
-              className="w-full pl-6 pr-14 py-8 rounded-[1.5rem] border-none bg-muted/20 focus-visible:ring-emerald-500 focus-visible:bg-background text-base md:text-lg shadow-none"
+              className="w-full pl-6 pr-24 py-8 rounded-[1.5rem] border-none bg-muted/20 focus-visible:ring-emerald-500 focus-visible:bg-background text-base md:text-lg shadow-none"
               disabled={isLoading}
             />
-            <Button 
-              type="submit" 
-              size="icon" 
-              disabled={!input.trim() || isLoading}
-              className={`absolute right-3 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full transition-all ${
-                input.trim() ? "bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg shadow-emerald-900/30" : "bg-muted text-muted-foreground"
-              }`}
-            >
-              <Send className="h-5 w-5" />
-            </Button>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+              <Button 
+                type="button" 
+                size="icon" 
+                variant="ghost"
+                onClick={startListening}
+                className={`h-11 w-11 rounded-full transition-colors ${isListening ? "bg-red-500/10 text-red-500 hover:bg-red-500/20 animate-pulse" : "text-muted-foreground hover:bg-muted/80"}`}
+              >
+                {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+              </Button>
+              <Button 
+                type="submit" 
+                size="icon" 
+                disabled={!input.trim() || isLoading}
+                className={`h-11 w-11 rounded-full transition-all ${
+                  input.trim() ? "bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg shadow-emerald-900/30" : "bg-muted text-muted-foreground"
+                }`}
+              >
+                <Send className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
           <p className="text-center text-xs text-muted-foreground mt-3 px-4 drop-shadow-md">
             I&apos;m an AI companion, not a medical professional. For serious concerns, please reach out to a counselor.

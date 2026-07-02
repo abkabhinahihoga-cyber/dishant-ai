@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { BrainCircuit, Send, User, Sparkles, Loader2, MessageSquare, Plus, Trash2, Menu, X, ArrowLeft, ChevronDown } from "lucide-react";
+import { BrainCircuit, Send, User, Sparkles, Loader2, MessageSquare, Plus, Trash2, Menu, X, ArrowLeft, ChevronDown, Mic, MicOff } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { useLanguage } from "@/components/language-provider";
@@ -65,14 +65,47 @@ export default function CareerMentorPage() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile sidebar state
+  const [isListening, setIsListening] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [hasScrolled, setHasScrolled] = useState(false);
+
+  // Web Speech API
+  const startListening = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      toast.error("Voice input is not supported in this browser.");
+      return;
+    }
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = language === "Hindi" ? 'hi-IN' : 'en-IN';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      toast.info("Listening...");
+    };
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setInput((prev) => prev ? prev + " " + transcript : transcript);
+    };
+
+    recognition.onerror = () => {
+      toast.error("Could not recognize voice. Please try again.");
+      setIsListening(false);
+    };
+
+    recognition.onend = () => setIsListening(false);
+
+    recognition.start();
+  };
 
   useEffect(() => { fetchHistory(); }, []);
 
   const fetchHistory = async () => {
     try {
-      const res = await fetch('/api/chat/history');
+      const res = await fetch('/api/chat/history?type=career_mentor');
       if (res.ok) {
         const data = await res.json();
         setConversations(data.conversations || []);
@@ -218,11 +251,11 @@ export default function CareerMentorPage() {
                 <div className="flex items-center gap-3 overflow-hidden flex-1 min-w-0">
                   <div className="truncate min-w-0">
                     <p className="text-sm font-medium truncate">{conv.title}</p>
-                    <p className="text-[11px] opacity-60 mt-0.5">{formatDistanceToNow(new Date(conv.updated_at), { addSuffix: true })}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">{formatDistanceToNow(new Date(conv.updated_at), { addSuffix: true })}</p>
                   </div>
                 </div>
                 <Button variant="ghost" size="icon" onClick={(e) => deleteConversation(e, conv.id)}
-                  className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive hover:bg-destructive/10 shrink-0 z-10 relative">
+                  className="h-8 w-8 md:opacity-0 md:group-hover:opacity-100 transition-opacity hover:text-destructive hover:bg-destructive/10 shrink-0 z-10 relative">
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
@@ -358,19 +391,30 @@ export default function CareerMentorPage() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="अपने करियर के बारे में कुछ भी पूछें..."
-                className="w-full pl-6 pr-14 py-8 rounded-[1.5rem] border-none bg-muted/20 focus-visible:ring-primary focus-visible:bg-background text-base md:text-lg shadow-none"
+                className="w-full pl-6 pr-24 py-8 rounded-[1.5rem] border-none bg-muted/20 focus-visible:ring-primary focus-visible:bg-background text-base md:text-lg shadow-none"
                 disabled={isLoading}
               />
-              <Button 
-                type="submit" 
-                size="icon" 
-                disabled={!input.trim() || isLoading}
-                className={`absolute right-3 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full transition-all ${
-                  input.trim() ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25" : "bg-muted text-muted-foreground"
-                }`}
-              >
-                <Send className="h-5 w-5" />
-              </Button>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                <Button 
+                  type="button" 
+                  size="icon" 
+                  variant="ghost"
+                  onClick={startListening}
+                  className={`h-11 w-11 rounded-full transition-colors ${isListening ? "bg-red-500/10 text-red-500 hover:bg-red-500/20 animate-pulse" : "text-muted-foreground hover:bg-muted/80"}`}
+                >
+                  {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+                </Button>
+                <Button 
+                  type="submit" 
+                  size="icon" 
+                  disabled={!input.trim() || isLoading}
+                  className={`h-11 w-11 rounded-full transition-all ${
+                    input.trim() ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25" : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  <Send className="h-5 w-5" />
+                </Button>
+              </div>
             </div>
             <p className="text-center text-xs text-muted-foreground mt-3 px-4 drop-shadow-md">
               AI can make mistakes. Consider verifying important information.

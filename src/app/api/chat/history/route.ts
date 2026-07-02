@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -13,12 +13,20 @@ export async function GET() {
     const { data: profile } = await supabase.from('profiles').select('id').eq('auth_user_id', user.id).single();
     if (!profile) return new NextResponse("Profile not found", { status: 404 });
 
-    const { data: conversations, error } = await supabase
+    const searchParams = req.nextUrl.searchParams;
+    const type = searchParams.get('type');
+
+    let query = supabase
       .from('ai_conversations')
       .select('id, title, updated_at')
       .eq('user_id', profile.id)
-      .eq('is_archived', false)
-      .order('updated_at', { ascending: false });
+      .eq('is_archived', false);
+
+    if (type) {
+      query = query.eq('context_type', type);
+    }
+
+    const { data: conversations, error } = await query.order('updated_at', { ascending: false });
 
     if (error) throw error;
 
