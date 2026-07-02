@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Heart, Leaf, Sun, Send, User, Loader2, Sparkles } from "lucide-react";
+import { Heart, Leaf, Sun, Send, User, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface Message {
@@ -67,16 +67,11 @@ export default function WellnessPage() {
     let phaseIdx = 0;
     setBreathPhase(phases[0].phase);
 
-    const advance = () => {
-      phaseIdx = (phaseIdx + 1) % phases.length;
-      setBreathPhase(phases[phaseIdx].phase);
-    };
-
-    // Start the cycling
     let timeout: NodeJS.Timeout;
     const cycle = () => {
       timeout = setTimeout(() => {
-        advance();
+        phaseIdx = (phaseIdx + 1) % phases.length;
+        setBreathPhase(phases[phaseIdx].phase);
         cycle();
       }, phases[phaseIdx].duration);
     };
@@ -122,7 +117,7 @@ export default function WellnessPage() {
 
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || "Failed to fetch");
+        throw new Error((errData as { error?: string }).error || "Failed to fetch");
       }
 
       const newConvId = response.headers.get("X-Conversation-Id");
@@ -172,59 +167,86 @@ export default function WellnessPage() {
   const QuoteIcon = currentQuote.icon;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-6rem)] animate-fade-in gap-4">
-      {/* Top Section: Breathing Exercise + Quote */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-shrink-0">
-        {/* Breathing Exercise Card */}
-        <Card className="relative overflow-hidden border-none shadow-xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 p-6">
-          <div className="absolute top-2 right-2 opacity-10 pointer-events-none">
-            <Leaf className="h-24 w-24 text-emerald-500" />
+    <div className="flex flex-col h-[calc(100vh-5rem)] md:h-[calc(100vh-6rem)] animate-fade-in gap-3 md:gap-4">
+
+      {/* ── Top Strip (mobile-compact / desktop-full) ──────────────────── */}
+      <div className="grid grid-cols-2 md:grid-cols-2 gap-3 flex-shrink-0">
+
+        {/* Breathing Card — compact on mobile */}
+        <Card className="relative overflow-hidden border-none shadow-md bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 p-3 md:p-6">
+          <div className="absolute top-1 right-1 opacity-10 pointer-events-none">
+            <Leaf className="h-14 w-14 md:h-24 md:w-24 text-emerald-500" />
           </div>
-          <div className="flex flex-col items-center gap-3">
+
+          {/* Mobile: horizontal layout */}
+          <div className="flex items-center gap-3 md:hidden">
+            {/* Mini breath circle */}
+            <div className={`rounded-full shrink-0 transition-all duration-[4000ms] ease-in-out flex items-center justify-center ${
+              isBreathing
+                ? breathPhase === "in"  ? "h-12 w-12 bg-emerald-400/30 shadow-[0_0_20px_rgba(52,211,153,0.3)]"
+                : breathPhase === "hold" ? "h-12 w-12 bg-emerald-500/30"
+                : "h-8 w-8 bg-emerald-300/20"
+                : "h-10 w-10 bg-emerald-200/30"
+            }`}>
+              <Leaf className={`transition-all duration-[4000ms] text-emerald-600 dark:text-emerald-400 ${
+                isBreathing
+                  ? breathPhase === "out" ? "h-3 w-3" : "h-5 w-5"
+                  : "h-4 w-4"
+              }`} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 uppercase tracking-wide">Breathing</p>
+              <p className="text-xs text-emerald-600 dark:text-emerald-400 truncate">
+                {isBreathing
+                  ? breathPhase === "in" ? "Breathe In..."
+                    : breathPhase === "hold" ? "Hold..."
+                    : "Breathe Out..."
+                  : "4-4-4 Technique"}
+              </p>
+            </div>
+            <Button
+              size="sm"
+              onClick={() => setIsBreathing(!isBreathing)}
+              className={`text-[11px] h-7 px-3 shrink-0 ${
+                isBreathing
+                  ? "border-emerald-300 text-emerald-700 bg-transparent hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-300 border"
+                  : "bg-emerald-600 hover:bg-emerald-700 text-white"
+              }`}
+            >
+              {isBreathing ? "Stop" : "Start"}
+            </Button>
+          </div>
+
+          {/* Desktop: vertical layout */}
+          <div className="hidden md:flex flex-col items-center gap-3">
             <h3 className="text-sm font-semibold text-emerald-700 dark:text-emerald-300 tracking-wide uppercase">
               Breathing Exercise
             </h3>
             <div className="relative flex items-center justify-center">
-              <div
-                className={`rounded-full transition-all duration-[4000ms] ease-in-out flex items-center justify-center ${
+              <div className={`rounded-full transition-all duration-[4000ms] ease-in-out flex items-center justify-center ${
+                isBreathing
+                  ? breathPhase === "in"  ? "h-28 w-28 bg-emerald-400/30 shadow-[0_0_40px_rgba(52,211,153,0.3)]"
+                  : breathPhase === "hold" ? "h-28 w-28 bg-emerald-500/30 shadow-[0_0_50px_rgba(52,211,153,0.4)]"
+                  : "h-16 w-16 bg-emerald-300/20 shadow-[0_0_20px_rgba(52,211,153,0.15)]"
+                  : "h-20 w-20 bg-emerald-200/30"
+              }`}>
+                <div className={`rounded-full transition-all duration-[4000ms] ease-in-out flex items-center justify-center ${
                   isBreathing
-                    ? breathPhase === "in"
-                      ? "h-28 w-28 bg-emerald-400/30 shadow-[0_0_40px_rgba(52,211,153,0.3)]"
-                      : breathPhase === "hold"
-                      ? "h-28 w-28 bg-emerald-500/30 shadow-[0_0_50px_rgba(52,211,153,0.4)]"
-                      : "h-16 w-16 bg-emerald-300/20 shadow-[0_0_20px_rgba(52,211,153,0.15)]"
-                    : "h-20 w-20 bg-emerald-200/30"
-                }`}
-              >
-                <div
-                  className={`rounded-full transition-all duration-[4000ms] ease-in-out flex items-center justify-center ${
-                    isBreathing
-                      ? breathPhase === "in"
-                        ? "h-16 w-16 bg-emerald-400/50"
-                        : breathPhase === "hold"
-                        ? "h-16 w-16 bg-emerald-500/50"
-                        : "h-8 w-8 bg-emerald-300/40"
-                      : "h-12 w-12 bg-emerald-300/30"
-                  }`}
-                >
-                  <Leaf
-                    className={`transition-all duration-[4000ms] ${
-                      isBreathing
-                        ? breathPhase === "out"
-                          ? "h-4 w-4"
-                          : "h-6 w-6"
-                        : "h-5 w-5"
-                    } text-emerald-600 dark:text-emerald-400`}
-                  />
+                    ? breathPhase === "in"  ? "h-16 w-16 bg-emerald-400/50"
+                    : breathPhase === "hold" ? "h-16 w-16 bg-emerald-500/50"
+                    : "h-8 w-8 bg-emerald-300/40"
+                    : "h-12 w-12 bg-emerald-300/30"
+                }`}>
+                  <Leaf className={`transition-all duration-[4000ms] text-emerald-600 dark:text-emerald-400 ${
+                    isBreathing ? (breathPhase === "out" ? "h-4 w-4" : "h-6 w-6") : "h-5 w-5"
+                  }`} />
                 </div>
               </div>
             </div>
             <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 h-5">
               {isBreathing
-                ? breathPhase === "in"
-                  ? "Breathe In..."
-                  : breathPhase === "hold"
-                  ? "Hold..."
+                ? breathPhase === "in" ? "Breathe In..."
+                  : breathPhase === "hold" ? "Hold..."
                   : "Breathe Out..."
                 : "Press Start to begin"}
             </p>
@@ -232,85 +254,94 @@ export default function WellnessPage() {
               variant={isBreathing ? "outline" : "default"}
               size="sm"
               onClick={() => setIsBreathing(!isBreathing)}
-              className={
-                isBreathing
-                  ? "border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-300"
-                  : "bg-emerald-600 hover:bg-emerald-700 text-white"
-              }
+              className={isBreathing
+                ? "border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-300"
+                : "bg-emerald-600 hover:bg-emerald-700 text-white"}
             >
               {isBreathing ? "Stop" : "Start Breathing"}
             </Button>
           </div>
         </Card>
 
-        {/* Motivational Quote Card */}
-        <Card className="relative overflow-hidden border-none shadow-xl bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-950/30 dark:to-violet-950/30 p-6 flex flex-col items-center justify-center">
-          <div className="absolute top-2 right-2 opacity-10 pointer-events-none">
-            <Sun className="h-24 w-24 text-purple-500" />
+        {/* Quote Card — compact on mobile */}
+        <Card className="relative overflow-hidden border-none shadow-md bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-950/30 dark:to-violet-950/30 p-3 md:p-6 flex flex-col justify-center">
+          <div className="absolute top-1 right-1 opacity-10 pointer-events-none">
+            <Sun className="h-14 w-14 md:h-24 md:w-24 text-purple-500" />
           </div>
-          <h3 className="text-sm font-semibold text-purple-700 dark:text-purple-300 tracking-wide uppercase mb-4">
-            Daily Affirmation
-          </h3>
-          <div className="flex items-center gap-3 transition-all duration-500">
-            <QuoteIcon className="h-8 w-8 text-purple-500 dark:text-purple-400 shrink-0" />
-            <p className="text-base md:text-lg font-medium text-purple-800 dark:text-purple-200 italic leading-relaxed">
-              &ldquo;{currentQuote.text}&rdquo;
-            </p>
+
+          {/* Mobile layout */}
+          <div className="flex flex-col gap-2 md:hidden">
+            <p className="text-[10px] font-semibold text-purple-700 dark:text-purple-300 uppercase tracking-widest">Daily Affirmation</p>
+            <div className="flex items-start gap-2">
+              <QuoteIcon className="h-4 w-4 text-purple-500 dark:text-purple-400 shrink-0 mt-0.5" />
+              <p className="text-xs font-medium text-purple-800 dark:text-purple-200 italic leading-snug line-clamp-3">
+                &ldquo;{currentQuote.text}&rdquo;
+              </p>
+            </div>
+            <div className="flex gap-1 mt-1">
+              {MOTIVATIONAL_QUOTES.map((_, i) => (
+                <div key={i} className={`h-1 rounded-full transition-all duration-300 ${i === quoteIndex ? "w-4 bg-purple-500" : "w-1 bg-purple-300/50"}`} />
+              ))}
+            </div>
           </div>
-          <div className="flex gap-1.5 mt-4">
-            {MOTIVATIONAL_QUOTES.map((_, i) => (
-              <div
-                key={i}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === quoteIndex
-                    ? "w-6 bg-purple-500"
-                    : "w-1.5 bg-purple-300/50"
-                }`}
-              />
-            ))}
+
+          {/* Desktop layout */}
+          <div className="hidden md:flex flex-col items-center">
+            <h3 className="text-sm font-semibold text-purple-700 dark:text-purple-300 tracking-wide uppercase mb-4">
+              Daily Affirmation
+            </h3>
+            <div className="flex items-center gap-3 transition-all duration-500">
+              <QuoteIcon className="h-8 w-8 text-purple-500 dark:text-purple-400 shrink-0" />
+              <p className="text-base md:text-lg font-medium text-purple-800 dark:text-purple-200 italic leading-relaxed">
+                &ldquo;{currentQuote.text}&rdquo;
+              </p>
+            </div>
+            <div className="flex gap-1.5 mt-4">
+              {MOTIVATIONAL_QUOTES.map((_, i) => (
+                <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${i === quoteIndex ? "w-6 bg-purple-500" : "w-1.5 bg-purple-300/50"}`} />
+              ))}
+            </div>
           </div>
         </Card>
       </div>
 
-      {/* Chat Area */}
+      {/* ── Chat Area ───────────────────────────────────────────────────── */}
       <Card className="flex-1 flex flex-col border-none shadow-xl overflow-hidden relative min-h-0 bg-gradient-to-b from-white to-emerald-50/30 dark:from-background dark:to-emerald-950/10">
-        <div className="absolute top-0 right-0 p-4 opacity-[0.05] pointer-events-none">
+        <div className="absolute top-0 right-0 p-4 opacity-[0.04] pointer-events-none">
           <Heart className="h-48 w-48 text-emerald-500" />
         </div>
 
         {/* Chat Header */}
-        <div className="p-4 border-b bg-gradient-to-r from-emerald-500/10 to-purple-500/10 backdrop-blur-sm flex items-center gap-3">
-          <div className="bg-emerald-100 dark:bg-emerald-900/50 p-2 rounded-full">
-            <Heart className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+        <div className="px-4 py-3 border-b bg-gradient-to-r from-emerald-500/10 to-purple-500/10 backdrop-blur-sm flex items-center gap-3 shrink-0">
+          <div className="bg-emerald-100 dark:bg-emerald-900/50 p-1.5 rounded-full">
+            <Heart className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
           </div>
           <div>
-            <h2 className="font-heading font-bold text-lg">Wellness Guide</h2>
-            <p className="text-xs text-muted-foreground">
+            <h2 className="font-heading font-bold text-sm md:text-base">Wellness Guide</h2>
+            <p className="text-[10px] md:text-xs text-muted-foreground">
               Your safe space to talk, breathe, and feel better
             </p>
           </div>
         </div>
 
         {/* Messages */}
-        <ScrollArea className="flex-1 min-h-0 p-4" ref={scrollRef}>
-          <div className="space-y-6 max-w-4xl mx-auto pb-4">
+        <ScrollArea className="flex-1 min-h-0" ref={scrollRef}>
+          <div className="space-y-4 md:space-y-6 p-3 md:p-4 max-w-4xl mx-auto pb-2">
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={`flex gap-4 ${
-                  message.role === "user" ? "justify-end" : "justify-start"
-                }`}
+                className={`flex gap-2 md:gap-4 ${message.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 {message.role === "assistant" && (
-                  <Avatar className="h-10 w-10 border border-emerald-200 dark:border-emerald-800 shrink-0">
+                  <Avatar className="h-8 w-8 md:h-10 md:w-10 border border-emerald-200 dark:border-emerald-800 shrink-0">
                     <AvatarFallback className="bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400">
-                      <Leaf className="h-5 w-5" />
+                      <Leaf className="h-4 w-4 md:h-5 md:w-5" />
                     </AvatarFallback>
                   </Avatar>
                 )}
 
                 <div
-                  className={`rounded-2xl px-5 py-3 max-w-[80%] whitespace-pre-wrap text-sm shadow-sm ${
+                  className={`rounded-2xl px-4 py-2.5 md:px-5 md:py-3 max-w-[85%] md:max-w-[80%] whitespace-pre-wrap text-sm shadow-sm ${
                     message.role === "user"
                       ? "bg-emerald-600 text-white rounded-tr-none"
                       : "bg-white/80 dark:bg-muted/50 border border-emerald-100 dark:border-emerald-900/50 rounded-tl-none text-foreground"
@@ -320,26 +351,24 @@ export default function WellnessPage() {
                 </div>
 
                 {message.role === "user" && (
-                  <Avatar className="h-10 w-10 border border-purple-200 dark:border-purple-800 shrink-0">
+                  <Avatar className="h-8 w-8 md:h-10 md:w-10 border border-purple-200 dark:border-purple-800 shrink-0">
                     <AvatarFallback className="bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400">
-                      <User className="h-5 w-5" />
+                      <User className="h-4 w-4 md:h-5 md:w-5" />
                     </AvatarFallback>
                   </Avatar>
                 )}
               </div>
             ))}
             {isLoading && (
-              <div className="flex gap-4 justify-start">
-                <Avatar className="h-10 w-10 border border-emerald-200 dark:border-emerald-800 shrink-0">
+              <div className="flex gap-2 md:gap-4 justify-start">
+                <Avatar className="h-8 w-8 md:h-10 md:w-10 border border-emerald-200 dark:border-emerald-800 shrink-0">
                   <AvatarFallback className="bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400">
-                    <Leaf className="h-5 w-5" />
+                    <Leaf className="h-4 w-4 md:h-5 md:w-5" />
                   </AvatarFallback>
                 </Avatar>
-                <div className="rounded-2xl px-5 py-4 max-w-[80%] bg-white/80 dark:bg-muted/50 border border-emerald-100 dark:border-emerald-900/50 rounded-tl-none flex items-center gap-2">
+                <div className="rounded-2xl px-4 py-3 max-w-[80%] bg-white/80 dark:bg-muted/50 border border-emerald-100 dark:border-emerald-900/50 rounded-tl-none flex items-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin text-emerald-600" />
-                  <span className="text-sm text-muted-foreground">
-                    Wellness Guide is here for you...
-                  </span>
+                  <span className="text-sm text-muted-foreground">Wellness Guide is here for you...</span>
                 </div>
               </div>
             )}
@@ -347,31 +376,27 @@ export default function WellnessPage() {
         </ScrollArea>
 
         {/* Input */}
-        <div className="p-4 border-t bg-white/50 dark:bg-background/50 backdrop-blur-sm z-10">
-          <form
-            onSubmit={handleSubmit}
-            className="max-w-4xl mx-auto relative flex items-center"
-          >
+        <div className="p-3 md:p-4 border-t bg-white/50 dark:bg-background/50 backdrop-blur-sm z-10 shrink-0">
+          <form onSubmit={handleSubmit} className="max-w-4xl mx-auto relative flex items-center">
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Share what's on your mind... this is a safe space 💚"
-              className="pr-12 py-6 rounded-full border-emerald-200 dark:border-emerald-800 focus-visible:ring-emerald-500 shadow-inner bg-white dark:bg-background"
+              placeholder="Share what's on your mind... 💚"
+              className="pr-12 py-5 md:py-6 rounded-full border-emerald-200 dark:border-emerald-800 focus-visible:ring-emerald-500 shadow-inner bg-white dark:bg-background text-sm"
               disabled={isLoading}
             />
             <Button
               type="submit"
               size="icon"
               disabled={!input.trim() || isLoading}
-              className="absolute right-1.5 h-9 w-9 rounded-full bg-emerald-600 hover:bg-emerald-700"
+              className="absolute right-1.5 h-8 w-8 md:h-9 md:w-9 rounded-full bg-emerald-600 hover:bg-emerald-700"
             >
-              <Send className="h-4 w-4" />
+              <Send className="h-3.5 w-3.5 md:h-4 md:w-4" />
             </Button>
           </form>
-          <div className="text-center mt-2">
+          <div className="text-center mt-1.5">
             <span className="text-[10px] text-muted-foreground">
-              I&apos;m an AI companion, not a medical professional. For serious
-              concerns, please reach out to a counselor or helpline.
+              I&apos;m an AI companion, not a medical professional. For serious concerns, please reach out to a counselor or helpline.
             </span>
           </div>
         </div>
