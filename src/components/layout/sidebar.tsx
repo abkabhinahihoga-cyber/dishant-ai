@@ -3,18 +3,19 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, BrainCircuit, Compass, Target, BookOpen, Heart, Settings, Zap, FileEdit, Briefcase, Video, Code2, MonitorPlay, LogOut, Download, Building2, Info, ExternalLink, GraduationCap, Wrench } from "lucide-react";
+import { LayoutDashboard, BrainCircuit, Compass, Target, BookOpen, Heart, Settings, Zap, FileEdit, Briefcase, Video, Code2, MonitorPlay, LogOut, Download, Building2, Info, ExternalLink, GraduationCap, Wrench, Share2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Progress } from "@/components/ui/progress";
 import { useTranslation } from "@/lib/i18n/use-translation";
 import { usePwaInstall } from "@/hooks/use-pwa-install";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 export function Sidebar({ className }: { className?: string }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const { canInstall, installApp } = usePwaInstall();
 
   const links = [
@@ -90,6 +91,32 @@ export function Sidebar({ className }: { className?: string }) {
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/login");
+  };
+
+  const APP_URL = "https://dishant-ai.vercel.app";
+
+  const handleShare = async () => {
+    const shareTitle = "Dishant AI - Your Career Companion";
+    const shareText = language === "Hindi"
+      ? "🚀 Dishant AI - तुम्हारा AI Career Mentor!\n\n✅ Career Guidance & Roadmap\n✅ Resume & Portfolio Builder\n✅ Mock Interviews\n✅ Govt Job Preparation\n✅ Wellness & Fitness Guide\n\nअभी free में try करो 👇"
+      : "🚀 Dishant AI - Your AI Career Mentor!\n\n✅ Career Guidance & Roadmap\n✅ Resume & Portfolio Builder\n✅ Mock Interviews\n✅ Govt Job Preparation\n✅ Wellness & Fitness Guide\n\nTry it for free 👇";
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: APP_URL,
+        });
+      } catch (err) {
+        // User cancelled share - do nothing
+      }
+    } else {
+      // Fallback: copy to clipboard
+      const fullMessage = `${shareText}\n${APP_URL}`;
+      await navigator.clipboard.writeText(fullMessage);
+      toast.success(language === "Hindi" ? "लिंक कॉपी हो गया! 🎉" : "Link copied to clipboard! 🎉");
+    }
   };
 
   return (
@@ -190,6 +217,15 @@ export function Sidebar({ className }: { className?: string }) {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Share App */}
+        <button
+          onClick={handleShare}
+          className="w-full flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 text-muted-foreground hover:text-blue-600 hover:bg-blue-500/10 text-left"
+        >
+          <Share2 className="h-[18px] w-[18px]" />
+          {t('shareApp', 'Share App')}
+        </button>
 
         {canInstall && (
           <button
